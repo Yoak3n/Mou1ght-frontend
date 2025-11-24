@@ -3,4 +3,5 @@
 export interface UserState {
     token:string|null
     isAuth:boolean
+    userID:number
 }

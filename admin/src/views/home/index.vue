@@ -34,16 +34,18 @@ import {
     NSpace
 } from 'naive-ui'
 import { useRoute, useRouter } from 'vue-router';
-
+import useUserStore from '@/store/modules/user'
 import { reqUserInfo } from '@/api/user';
 import type { userInfo } from '@/api/user/type'
 const $route = useRoute();
 const $router = useRouter();
 let path = ref<Array<string>>([])
-let userInfo = ref<userInfo>({ name: 0, nick_name: '', email: '', avatar: '', role: [], desc: '' })
+const userStore = useUserStore()
+let userInfo = ref<userInfo>({ id: 0, name: 0, nick_name: '', email: '', avatar: '', role: [], desc: '' })
 onMounted(() => {
     reqUserInfo().then((v) => {
         userInfo.value = v.data.user
+        userStore.userID = v.data.user.id
     }).catch((err) => {
         window.$message.error({ content: err, duration: 2500 })
         $router.push('/login')

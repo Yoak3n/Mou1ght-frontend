@@ -83,7 +83,17 @@ const routes:RouteRecordRaw[] =[
                 meta:{
                     title:'文章列表',
                     icon:'PersonOutline'
-                }
+                },
+                children:[{
+                        path:'/article/list/modify/:id',
+                        component:()=>import('@/views/article/list/modify/index.vue'),
+                        name:'ArticleModify',
+                        meta:{
+                            title:'修改文章',
+                            icon:'PersonOutline'
+                        }
+                    }
+                ]
             },{
                 path:'/article/spu',
                 component:()=>import('@/views/article/spu/index.vue'),

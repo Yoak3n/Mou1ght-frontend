@@ -86,12 +86,14 @@ const loginHandle = async () => {
 
             // 登录成功的提示信息
         } catch (error) {
-            window.$notification.error({
-                content: 'Error',
-                meta: error,
-                duration: 2500,
-                closable: false,
-            })
+            // window.$notification.error({
+            //     content: 'Error',
+            //     meta: error,
+            //     duration: 2500,
+            //     closable: false,
+            // })
+            console.log(error);
+            
         } finally {
             model.value.username = ''
             model.value.password = ''

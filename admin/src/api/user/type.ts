@@ -14,18 +14,17 @@ export interface loginResponseData{
 }
 
 export interface userInfo {
+    id:number,
     name:number,
     email:string,
     avatar:string,
     nick_name:string,
-    // password:string,
     desc:string,
     role:string[],
-    // buttons:string[],
-    // routes:string[],
-    // token:string
-
 }
+
+export type userView = Omit<userInfo,'role'>
+
 interface user{
     user:userInfo
 }

@@ -1,37 +1,38 @@
 <template>
   <div class="article-list-wrapper">
-    <n-layout-header :bordered="true">
-
+    <n-layout-header :bordered="true" v-if="$route.name === 'ArticleList'">
+      <n-button type="primary" @click="$router.push('/article/list/modify/add')">新增文章</n-button>
     </n-layout-header>
-    <n-layout-content content-style="padding: 24px;">
-      <n-breadcrumb>
-        <n-breadcrumb-item>
-          <n-icon :component="MdCash" /> 北京总行</n-breadcrumb-item>
-        <n-breadcrumb-item>
-          <n-icon :component="MdCash" /> 天津分行</n-breadcrumb-item>
-        <n-breadcrumb-item>
-          <n-icon :component="MdCash" /> 平山道支行</n-breadcrumb-item>
-      </n-breadcrumb>
-
+    <n-layout-content content-style="padding: 24px;" v-if="$route.name === 'ArticleList'">
+      <n-data-table :columns="columns" :data="data" :pagination="pagination" :bordered="false"  />
     </n-layout-content>
-    <n-layout-footer>
-      <n-data-table :columns="columns" :data="data" :pagination="pagination" :bordered="false" />
-    </n-layout-footer>
+    <router-view/>
   </div>
 </template>
 <script setup lang="ts">
-import {reactive,h} from 'vue'
-import { 
-  NLayoutHeader, 
+import { onMounted,reactive, h } from 'vue'
+import { useRoute, useRouter } from 'vue-router'
+import {
+  NLayoutHeader,
   NLayoutContent,
-   NLayoutFooter, 
-   NBreadcrumb, 
-   NBreadcrumbItem, 
-   NIcon,
-   NDataTable,
-   DataTableColumns,
-   NButton } from 'naive-ui'
-import { MdCash } from '@vicons/ionicons4';
+  NDataTable,
+  DataTableColumns,
+  NButton
+} from 'naive-ui'
+import {getArticleList} from '@/api/article'
+
+const $route = useRoute()
+const $router = useRouter()
+
+
+onMounted(async () => {
+  const res = await getArticleList()
+  if (res) {
+    console.log(res);
+  }
+})
+
+
 
 type Song = {
   no: number
@@ -59,7 +60,7 @@ const createColumns = ({
     {
       title: 'Action',
       key: 'actions',
-      render (row) {
+      render(row) {
         return h(
           NButton,
           {
@@ -75,9 +76,11 @@ const createColumns = ({
   ]
 }
 
-const columns = createColumns({play (row: Song) {
-          window.$message.info(`Play ${row.title}`)
-        }})
+const columns = createColumns({
+  play(row: Song) {
+    window.$message.info(`Play ${row.title}`)
+  }
+})
 
 
 const paginationReactive = reactive({
@@ -86,14 +89,14 @@ const paginationReactive = reactive({
   showSizePicker: true,
   pageSizes: [3, 5, 7],
   onChange: (page: number) => {
-  paginationReactive.page = page
+    paginationReactive.page = page
   },
   onUpdatePageSize: (pageSize: number) => {
-        paginationReactive.pageSize = pageSize
-        paginationReactive.page = 1
-      }
+    paginationReactive.pageSize = pageSize
+    paginationReactive.page = 1
+  }
 })
-const pagination= paginationReactive 
+const pagination = paginationReactive
 const data: Song[] = [
   { no: 3, title: 'Wonderwall', author: '4:18' },
   { no: 4, title: "Don't Look Back in Anger", author: '4:48' },
@@ -105,6 +108,5 @@ const data: Song[] = [
 <style scoped>
 .article-list-wrapper {
   height: 100%;
-  background-color: aqua
 }
 </style>

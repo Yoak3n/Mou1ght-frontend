@@ -8,13 +8,14 @@ let useUserStore = defineStore('userStore',{
     state:():UserState=>{
         return {
             token:GET_TOKEN(),
-            isAuth:false
+            isAuth:false,
+            userID:0
         }
     },
     actions:{
         async userLogin (data:loginForm) {
             let result = await reqLogin(data)
-            if (result.code === 200){
+            if (result.code === 0){
                 this.token = result.data.token as string
                 SET_TOKEN((result.data.token as string))
                 return 'ok'
@@ -25,7 +26,7 @@ let useUserStore = defineStore('userStore',{
         },
         async userRegister(data:loginForm){
             let result = await reqRegister(data)
-            if (result.code ===200){
+            if (result.code === 0){
                 this.token = result.data.token as string
                 SET_TOKEN((result.data.token as string))
                 return 'ok'
@@ -38,7 +39,6 @@ let useUserStore = defineStore('userStore',{
         async userLogout(){
             this.token = ''
             SET_TOKEN('')
-
         }
     },
     getters:{
