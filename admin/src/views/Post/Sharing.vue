@@ -4,6 +4,7 @@
             <SharingTable :sharings="sharingsData"/>
         </n-tab-pane>
         <n-tab-pane tab="创建说说" name="modify" display-directive="if">
+            <SharingForm />
         </n-tab-pane>
     </n-tabs>
 </template>
@@ -13,6 +14,7 @@ import { ref } from 'vue'
 import { NTabs, NTabPane } from 'naive-ui';
 import SharingTable from '@/components/List/SharingTable/index.vue'
 import type { SharingInfo } from '@/types';
+import SharingForm from '@/components/Form/Sharing.vue'
 
 const tabKey = ref<string>('list')
 const sharingsData = ref<SharingInfo[]>([])

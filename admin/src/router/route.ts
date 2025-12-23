@@ -28,6 +28,11 @@ const routes: RouteRecordRaw[] = [
         },
         children: [
             {
+                path: '/post/group',
+                name: 'group',
+                component: () => import("@/views/Post/Group.vue"),
+                meta: { title: '分类标签管理' }
+            },{
                 path: '/post/article',
                 name: 'article',
                 component: () => import("@/views/Post/Article.vue"),

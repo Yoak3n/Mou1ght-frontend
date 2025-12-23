@@ -40,6 +40,8 @@ let  menuOptions: MenuOption[] = [
         icon: renderIcon(CarOutline),
         children:[
             {
+                label:'分类标签管理',key:'post/group',path:'/post/group'
+            },{
                 label:'文章管理',key:'post/article',path:'/post/article'
             },{
                 label:'说说管理',key:'post/sharing',path:'/post/sharing'
