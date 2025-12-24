@@ -9,7 +9,7 @@
                         <n-select v-model:value="element.type" placeholder="Link Type" :options="linkTypeOptions" />
                     </n-input-group>
                     <n-button-group>
-                        <n-button @click="removeLink(index)" v-if="index !== 0">
+                        <n-button @click="removeLink(index)" v-if="links.length > 1 && index != 0">
                             <n-icon>
                                 <Remove />
                             </n-icon>
@@ -75,11 +75,7 @@ const links = defineModel('links', {
     required: true
 });
 
-const addLink = () => {
-    visible.value = true
-    console.log(visible.value);
-
-}
+const addLink = () => visible.value = true
 
 const removeLink = (index: number) => {
     links.value.splice(index, 1)

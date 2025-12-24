@@ -22,11 +22,12 @@
                         <n-input placeholder="请输入网站Logo地址..."
                             v-model:value="blogSetting.nav_bar.website_information.logo" />
                     </n-form-item>
+
                     <n-form-item label="网站关键词">
-                        <n-space v-for="(value, index) in blogSetting.nav_bar.website_information.keywords">
-                            <n-input placeholder="请输入网站关键词..." v-model:value="value" />
+                        <div v-for="(_, index) in blogSetting.nav_bar.website_information.keywords" :style="{display:'flex'}">
+                            <n-input placeholder="请输入网站关键词..." v-model:value="blogSetting.nav_bar.website_information.keywords[index]" />
                             <n-button-group>
-                                <n-button @click="removeKeyword(index)" v-if="index !== 0">
+                                <n-button @click="removeKeyword(index)" v-if="blogSetting.nav_bar.website_information.keywords.length !== 0">
                                     <n-icon>
                                         <Remove />
                                     </n-icon>
@@ -39,7 +40,7 @@
                                     </n-icon>
                                 </n-button>
                             </n-button-group>
-                        </n-space>
+                        </div>
 
                     </n-form-item>
                 </n-form>
@@ -49,10 +50,25 @@
             <n-card title="底部信息">
                 <n-form>
                     <n-form-item label="html代码">
-                        <n-input placeholder="html代码" type="textarea" v-model:value="blogSetting.bottom_extra.html" />
+                        <n-input placeholder="html代码" type="textarea" :resizable="false" v-model:value="blogSetting.bottom_extra.html" />
                     </n-form-item>
                     <n-form-item label="css代码">
-                        <n-input placeholder="css代码" type="textarea" v-model:value="blogSetting.bottom_extra.css" />
+                        <n-input placeholder="css代码" type="textarea" :resizable="false" v-model:value="blogSetting.bottom_extra.css" />
+                    </n-form-item>
+                </n-form>
+            </n-card>
+        </n-tab-pane>
+        <n-tab-pane tab="留言板" name="board">
+            <n-card title="留言版设置">
+                <n-form>
+                    <n-form-item label="留言板问题">
+                        <n-input placeholder="请输入添加留言需要回答的问题"  v-model:value="blogSetting.bottom_extra.html" />
+                    </n-form-item>
+                    <n-form-item label="留言板答案">
+                        <n-input placeholder="请输入留言板答案" v-model:value="blogSetting.bottom_extra.css" />
+                    </n-form-item>
+                    <n-form-item label="是否人工审核">
+                        <n-switch v-model:value="blogSetting.board.need_reviewed"/>
                     </n-form-item>
                 </n-form>
             </n-card>
@@ -71,8 +87,8 @@ import {
     NInput,
     NButtonGroup,
     NButton,
-    NSpace,
-    NIcon
+    NIcon,
+    NSwitch
 } from 'naive-ui';
 import { Add, Remove } from '@vicons/ionicons5';
 import type { BlogSetting } from '@/types';
@@ -92,6 +108,11 @@ const initialBlogSetting: BlogSetting = {
     bottom_extra: {
         html: '',
         css: ''
+    },
+    board: {
+        question: "",
+        answer: "",
+        need_reviewed: false
     }
 };
 const settingStore = useSettingStore();
@@ -112,7 +133,7 @@ const addKeyword = () => {
     blogSetting.nav_bar.website_information.keywords.push('')
 }
 const removeKeyword = (index: number) => {
-    blogSetting.nav_bar.website_information.keywords.splice(index, 0)
+    blogSetting.nav_bar.website_information.keywords.splice(index, 1)
 }
 
 onBeforeUnmount(() => {
