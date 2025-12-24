@@ -17,7 +17,16 @@ export interface SharingInfo {
     tags: Sign[],
     author: UserInfo,
     state: PostState,
-    time: PostTimeInfo
+    time: PostTimeInfo,
+    attachments?: Attachment[]
+}
+
+export interface MessageInfo {
+    id: string,
+    content: string,
+    position: MessagePosition,
+    state: PostState,
+    time: PostTimeInfo,
 }
 
 export interface CategoryGroup extends Sign{
@@ -35,11 +44,22 @@ export interface Sign {
     label: string;
 }
 
+export interface Attachment {
+    file_name: string,
+    file_path: string
+}
+
 export interface PostState {
     view: number,
     like: number,
     length: number,
-    status: number
+    status: string
+}
+
+export interface MessagePosition{
+    x: number,
+    y: number,
+    z: number
 }
 
 export interface PostTimeInfo{

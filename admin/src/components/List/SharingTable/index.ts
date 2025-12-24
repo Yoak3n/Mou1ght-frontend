@@ -1,11 +1,11 @@
 import { h } from "vue"
 
-import { NButton, NEllipsis, NTag } from "naive-ui"
-import type { DataTableColumns} from 'naive-ui'
+import { NButton, NEllipsis, NTag} from "naive-ui"
+import type { DataTableColumns, DropdownOption} from 'naive-ui'
 
-import type { SharingInfo, PostState, UserInfo } from "@/types"
+import type { SharingInfo, PostState, UserInfo, Attachment } from "@/types"
 import PostStateComponent from '@/components/Thing/PostState/index.vue'
-
+import AttachmentColumn from "@/components/Thing/Attachment/index.vue"
 
 export interface RowData {
     id: string,
@@ -13,19 +13,17 @@ export interface RowData {
     tags: string[]
     author: UserInfo,
     update_time: string,
-    state: PostState
+    state: PostState,
+    attachments?: Attachment[]
 }
 
 export const createColumns = ({ action }: { action: (e:MouseEvent,data: RowData) => void }): DataTableColumns<RowData> => {
     return [
         {
-            key: 'title',
-            title: '标题',
-            resizable: true,
-            minWidth: 50
-        }, {
             key: 'brief',
             title: '摘要',
+            resizable: true,
+            minWidth: 200,
             render(row) {
                 return h(
                     NEllipsis, {
@@ -57,6 +55,16 @@ export const createColumns = ({ action }: { action: (e:MouseEvent,data: RowData)
                 return tags
             }
         }, {
+            key: 'attachments',
+            title: '附件',
+            render(row) {
+                return h(
+                    AttachmentColumn, {
+                        srcs: row.attachments || []
+                    }
+                )
+            }
+        },{
             key: 'author',
             title: '作者',
             render(row) {
@@ -108,7 +116,23 @@ export const createData = (sharings: SharingInfo[]): RowData[] => {
             tags: item.tags.map(t => t.label),
             author: item.author,
             update_time: item.time.updated_at,
-            state: item.state
+            state: item.state,
+            attachments: item.attachments || []
         }
     })
 }
+
+export const contextMenuOptions:DropdownOption[] = [
+    // {
+    //     label: '更新说说',
+    //     key: 'updateSharing'
+    // },
+    {
+        label: '预览说说',
+        key: 'previewSharing'
+    },{
+        label: '删除说说',
+        key: 'deleteSharing',
+        type: 'error'
+    }
+]

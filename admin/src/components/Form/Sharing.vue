@@ -26,14 +26,14 @@
 
 <script setup lang="ts">
 import { ref } from 'vue';
-import { NForm, NFormItem, NInput, NButton, NUpload, useMessage } from 'naive-ui';
+import { NForm, NFormItem, NInput, NButton, NUpload } from 'naive-ui';
 import type { UploadCustomRequestOptions, UploadFileInfo } from 'naive-ui'
 import TagSelect from '@/components/Select/TagSelect/index.vue'
 import type { CreateSharingRequest } from '@/api/sharing/type';
 import { createSharing } from '@/api/sharing';
 import { uploadAttachment } from '@/api/attachment';
 
-const message = useMessage();
+
 const sharingForm = ref<CreateSharingRequest>({
     content: '',
     author: '',
@@ -50,20 +50,18 @@ const customUpload = async ({ file, onFinish, onError }: UploadCustomRequestOpti
         try {
             const res = await uploadAttachment(formData);
             if (res.code === 0) {
-                file.url = res.data; // Assuming backend returns the URL in data
+                file.url = res.data[0] ? res.data[0] : ''; // Assuming backend returns the URL in data
                 // Update attachment string in form
                 if (sharingForm.value.attachment) {
                     sharingForm.value.attachment += `,${res.data}`;
-                } else {
-                    sharingForm.value.attachment = res.data;
                 }
                 onFinish();
             } else {
-                message.error(res.message || '上传失败');
+                window.$message.error(res.message || '上传失败');
                 onError();
             }
         } catch (error) {
-            message.error('上传出错');
+            window.$message.error('上传出错');
             onError();
         }
     }
@@ -81,7 +79,7 @@ const submitForm = async () => {
     try {
         const res = await createSharing(sharingForm.value);
         if (res.code === 0) {
-            message.success('发布成功');
+            window.$message.success('发布成功');
             // Reset form
             sharingForm.value = {
                 content: '',
@@ -91,10 +89,10 @@ const submitForm = async () => {
             };
             fileListRef.value = [];
         } else {
-            message.error(res.message || '发布失败');
+            window.$message.error(res.message || '发布失败');
         }
     } catch (error) {
-        message.error('发布失败');
+        window.$message.error('发布失败');
     }
 }
 </script>

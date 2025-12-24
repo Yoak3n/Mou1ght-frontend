@@ -18,11 +18,14 @@ const {x,y, close} = defineProps<{
 
 const contextMenuHandler = (key: string) => {
     switch (key){
-        case 'updateArticle':
-            $emitter.emit('article:updateAction')
+        // case 'updateArticle':
+        //     $emitter.emit('article:updateAction')
+        //     break
+        case 'previewMessage':
+            $emitter.emit('message:previewAction')
             break
-        case 'previewArticle':
-            $emitter.emit('article:updateAction')
+        case 'deleteMessage':
+            $emitter.emit('message:deleteAction')
             break
     }
     close(true)

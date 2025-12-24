@@ -8,15 +8,15 @@ import { computed, reactive } from 'vue';
 import { NDataTable, } from 'naive-ui';
 
 import { createData,createColumns } from '.';
-import type { SharingInfo } from '@/types';
+import type { MessageInfo } from '@/types';
 import ContextMenu from './ContextMenu.vue';
 
-const {sharings, actionHandler} = defineProps<{
-    sharings: SharingInfo[],
+const {messages, actionHandler} = defineProps<{
+    messages: MessageInfo[],
     actionHandler: (id?: string)=> void
 }>()
 const mouseAction = reactive<{x: number,y :number, show: boolean}>({x:0,y:0, show: false})
-const data = computed(() => createData(sharings))
+const data = computed(() => createData(messages))
 const columns = createColumns({
     action(e, data) {
         e.preventDefault();
@@ -35,3 +35,6 @@ const closeContextMenu = (cache: boolean) => {
 }
 
 </script>
+
+<style scoped>
+</style>

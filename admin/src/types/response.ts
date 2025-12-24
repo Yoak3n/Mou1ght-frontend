@@ -1,4 +1,4 @@
-import type { ArticleInfo } from "./post"
+import type { ArticleInfo, MessageInfo, SharingInfo } from "./post"
 
 export interface Response<T>{
     code:number,
@@ -8,7 +8,8 @@ export interface Response<T>{
 
 export interface PostListResponse {
     articles?: ArticleInfo[]
-    sharings?: []
+    sharings?: SharingInfo[]
+    messages?: MessageInfo[]
     authors?: []
     tags?:[]
     categories? :[]

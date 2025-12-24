@@ -5,7 +5,7 @@
     <div>
         阅读： {{ state.view }}
     </div>
-    <div>
+    <div v-if="state.status">
         状态： {{ state.status }}
     </div>
 </template>

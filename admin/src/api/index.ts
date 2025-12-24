@@ -1,2 +1,5 @@
 export * from './user'
 export * from './article'
+export * from './message'
+export * from './sharing'
+export * from './attachment'

@@ -26,6 +26,9 @@ importers:
       default-passive-events:
         specifier: ^4.0.0
         version: 4.0.0
+      fluid-dnd:
+        specifier: ^2.6.3
+        version: 2.6.3
       mitt:
         specifier: ^3.0.1
         version: 3.0.1
@@ -487,6 +490,9 @@ packages:
     peerDependenciesMeta:
       picomatch:
         optional: true
+
+  fluid-dnd@2.6.3:
+    resolution: {integrity: sha512-KLqOBEWw8uP24qIx8V5xzJDzoyKJ8jR7Hie5ERevzxlsBhtLbuk6OYhrZ8+EQyrXrgjyIdFebAneFQbc/eeKmw==}
 
   follow-redirects@1.15.11:
     resolution: {integrity: sha512-deG2P0JfjrTxl50XGCDyfI97ZGVCxIpfKYmfyrQ54n5FO/0gfIES8C/Psl6kWVDolizcaaxZJnTS0QSMxvnsBQ==}
@@ -1473,6 +1479,8 @@ snapshots:
   fdir@6.5.0(picomatch@4.0.3):
     optionalDependencies:
       picomatch: 4.0.3
+
+  fluid-dnd@2.6.3: {}
 
   follow-redirects@1.15.11: {}
 

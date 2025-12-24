@@ -49,7 +49,16 @@ const routes: RouteRecordRaw[] = [
                 meta: { title: '说说管理' }
             }
         ]
-      }
+      },{
+        path: '/settings',
+        name: 'settings',
+        component: () => import("@/views/Settings.vue"),
+        meta: { 
+            title: '网站设置',
+            auth: true
+            
+        },
+    }
     ]
   },{
     path: '/login',

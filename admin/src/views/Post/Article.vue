@@ -55,9 +55,7 @@ onMounted(async()=>{
             articlesData.value = res.data.articles!
         }else{
             throw new Error(res.message)
-        }
-        
-        
+        } 
     }catch(e:any){
         window.$message.error(e.message || '请求错误')
     }
