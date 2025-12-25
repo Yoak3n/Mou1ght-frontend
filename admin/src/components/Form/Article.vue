@@ -4,10 +4,10 @@
             <n-input v-model:value="articleModel.title" placeholder="请输入文章标题" />
         </n-form-item>
         <n-form-item label="分类">
-            <CategorySelect v-model:values="articleModel.categories" />
+            <CategorySelect v-model:values="articleModel.categories" multiple />
         </n-form-item>
         <n-form-item label="标签">
-            <TagSelect v-model:values="articleModel.tags" />
+            <TagSelect v-model:values="articleModel.tags" multiple />
         </n-form-item>
     </n-form>
     <Editor :handleSubmit="handleSubmit" :initContent="articleModel.content" />

@@ -18,4 +18,4 @@ export const getSharingList = ()=> {
     }
     return request.post<any,Response<PostListResponse>>(API.LIST_URL,req)
 }
-export const deleteSharing = (id: string) => request.post<any,Response<null>>(`${API.DELETE_URL}/${id}`)
+export const deleteSharing = (id: string) => request.delete<any,Response<null>>(`${API.DELETE_URL}/${id}`)

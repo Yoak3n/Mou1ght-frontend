@@ -5,7 +5,7 @@
                 <n-space class="link-item">
                     <n-input-group>
                         <n-input v-model:value="element.label" placeholder="Link Label" />
-                        <n-input v-model:value="element.url" placeholder="Link URL" />
+                        <n-input v-model:value="element.href" placeholder="Link URL" v-if="element.type == 'external' || element.type == 'home'" />
                         <n-select v-model:value="element.type" placeholder="Link Type" :options="linkTypeOptions" />
                     </n-input-group>
                     <n-button-group>
@@ -27,14 +27,16 @@
     </div>
     <n-modal v-model:show="visible" title="Add Link" preset="card" :style="{ width: '800px' }">
         <n-form :model="linkForm">
-            <n-form-item label="Label">
-                <n-input v-model:value="linkForm.label" placeholder="Label" />
+            <n-form-item label="Label" >
+                <n-input v-model:value="linkForm.label" placeholder="Label" v-if="linkForm.type == 'external' || linkForm.type == 'home'" />
+                <CategorySelect v-model:value="linkForm.label" placeholder="Category" v-if="linkForm.type == 'category'" />
+                <TagSelect v-model:value="linkForm.label" placeholder="Tag" v-if="linkForm.type == 'tag'"  />   
             </n-form-item>
-            <n-form-item label="URL">
-                <n-input v-model:value="linkForm.url" placeholder="URL" />
+            <n-form-item label="URL" v-if="linkForm.type == 'external' || linkForm.type == 'home'">
+                <n-input v-model:value="linkForm.href" placeholder="URL" />
             </n-form-item>
             <n-form-item label="Type">
-                <n-select v-model:value="linkForm.type" placeholder="Type" :options="linkTypeOptions" />
+                <n-select v-model:value="linkForm.type" placeholder="Type" :options="linkTypeOptions"  @update:value="onTypeChange"/>
             </n-form-item>
         </n-form>
         <template #footer>
@@ -51,24 +53,39 @@ import { ref } from 'vue';
 import { useDragAndDrop } from 'fluid-dnd/vue';
 import { NInput, NInputGroup, NButtonGroup, NButton, NModal, NForm, NFormItem, NSelect, NIcon, NSpace } from 'naive-ui';
 import { Add, Remove } from '@vicons/ionicons5';
+
+import TagSelect from '@/components/Select/TagSelect/index.vue'
+import CategorySelect from '@/components/Select/CategorySelect/index.vue'
 import type { LinkSetting } from '@/types';
 
 const visible = ref(false)
 const linkForm = ref<LinkSetting>({
     label: '',
-    url: '',
-    type: 'link'
+    href: '',
+    type: 'home'
 })
 const linkTypeOptions = ref([
     {
-        label: 'Link',
-        value: 'link'
+        label: 'Home',
+        value: 'home'
     },
     {
-        label: 'Dropdown',
-        value: 'dropdown'
+        label: 'Category',
+        value: 'category'
+    },{
+        label: 'Tag',
+        value: 'tag'
+    },
+    {
+        label: 'External',
+        value: 'external'
     }
 ])
+
+const onTypeChange = () => {
+    linkForm.value.href = ''
+    linkForm.value.label = ''
+}
 
 const links = defineModel('links', {
     type: Array as () => Array<LinkSetting>,

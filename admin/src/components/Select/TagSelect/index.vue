@@ -1,6 +1,6 @@
 <template>
-    <n-select multiple :options="options" remote @update:show="(show) => show && loadOptions()" :value="keys"
-        value-field="key" label-field="label" @update-value="onUpdateKeys" />
+    <n-select :multiple="multiple" :options="options" remote @update:show="(show) => show && loadOptions()" :value="multiple?keys:value"
+        :value-field="multiple?'key':'label'" label-field="label" @update-value="onUpdateKeys" />
 </template>
 
 <script setup lang="ts">
@@ -10,9 +10,17 @@ import type { SelectOption } from 'naive-ui'
 import { getAllTags } from '@/api/tag';
 import type { Sign } from '@/types';
 
+const {multiple} = defineProps({
+    multiple: {
+        type: Boolean,
+        default: false
+    }
+})
+
 let optionData: Map<string, Sign> = new Map();
 const options = ref<SelectOption[]>([])
 const values = defineModel<Sign[]>('values', { default: [] })
+const value = defineModel<string>('value', { default: '' })
 const keys = computed(() => values.value.map(item => item.id))
 
 let initDone = false
@@ -27,12 +35,19 @@ const unwatch = watch(() => values.value, async (newValues) => {
     if (newValues && newValues.length > 0) {
         await loadOptions()
         initDone = true
+        if (!multiple) {
+            value.value = optionData.keys().next().value || ''
+        }
         unwatch() // 停止监听
     }
 }, { immediate: true })
 
-const onUpdateKeys = (v: string[]) => {
-    values.value = v.map(item => optionData.get(item))
+const onUpdateKeys = (v: string[] | string) => {
+    if (!multiple) {
+        value.value = v as string || ''
+        return
+    }
+    values.value = (v as string[]).map(item => optionData.get(item))
         .filter((item): item is Sign => item !== undefined)
 }
 const loadOptions = async () => {

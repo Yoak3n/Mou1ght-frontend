@@ -1,6 +1,6 @@
 <template>
-    <n-select multiple :options="options" value-field="key" label-field="label" remote
-        @update-show="(show) => show && loadOptions()" :renderTag="renderTag" :value="keys"
+    <n-select :multiple="multiple" :options="options" :value-field="multiple?'key':'label'" label-field="label" remote
+        @update-show="(show) => show && loadOptions()" :renderTag="renderTag" :value="multiple?keys:value"
         @update:value="onUpdateKeys" />
 </template>
 
@@ -12,11 +12,18 @@ import { renderTag } from '../index'
 import { getAllCategoryGroup } from '@/api/category';
 import type { CategoryGroup, Sign } from '@/types';
 
+
+const {multiple} = defineProps({
+    multiple: {
+        type: Boolean,
+        default: false
+    }
+})
 let optionData: Map<string, Sign> = new Map();
 const options = ref<SelectOption[]>([])
 const keys = computed(() => values.value.map(item => item.id))
 const values = defineModel<Sign[]>('values', { default: [] })
-
+const value = defineModel<string>('value', { default: ''})
 let initDone = false
 
 // 使用立即执行的 watch，但只执行一次
@@ -29,12 +36,24 @@ const unwatch = watch(() => values.value, async (newValues) => {
     if (newValues && newValues.length > 0) {
         await loadOptions()
         initDone = true
+        if (!multiple) {
+            value.value = optionData.keys().next().value || ''
+        }
         unwatch() // 停止监听
     }
 }, { immediate: true })
 
-const onUpdateKeys = (v: string[]) => {
-    values.value = v.map(item => optionData.get(item))
+
+
+
+const onUpdateKeys = (v: string[] | string) => {
+    if (!multiple) {
+        value.value = v as string || ''
+        console.log(value.value);
+        
+        return
+    }
+    values.value = (v as string[]).map(item => optionData.get(item))
         .filter((item): item is Sign => item !== undefined)
 }
 const loadOptions = async () => {

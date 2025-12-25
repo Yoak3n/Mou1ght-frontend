@@ -31,5 +31,5 @@ export interface WebsiteInformation{
 export interface LinkSetting{
     type: string;
     label: string;
-    url: string;
+    href: string;
 } 
