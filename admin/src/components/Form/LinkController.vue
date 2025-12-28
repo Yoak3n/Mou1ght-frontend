@@ -4,8 +4,8 @@
             <div v-for="(element, index) in links" :index="index" :key="element.label" >
                 <n-space class="link-item">
                     <n-input-group>
-                        <n-input v-model:value="element.label" placeholder="Link Label" />
-                        <n-input v-model:value="element.href" placeholder="Link URL" v-if="element.type == 'external' || element.type == 'home'" />
+                        <n-input v-model:value="element.label" placeholder="Link Label" :disabled="element.type != 'external'"/>
+                        <n-input v-model:value="element.href" placeholder="Link URL" v-if="element.type == 'external'" />
                         <n-select v-model:value="element.type" placeholder="Link Type" :options="linkTypeOptions" />
                     </n-input-group>
                     <n-button-group>
@@ -28,7 +28,8 @@
     <n-modal v-model:show="visible" title="Add Link" preset="card" :style="{ width: '800px' }">
         <n-form :model="linkForm">
             <n-form-item label="Label" >
-                <n-input v-model:value="linkForm.label" placeholder="Label" v-if="linkForm.type == 'external' || linkForm.type == 'home'" />
+                <n-input v-model:value="linkForm.label" placeholder="Label" v-if="linkForm.type == 'external'" />
+                <n-select v-model:value="linkForm.label" placeholder="Internal link" v-if="linkForm.type == 'internal'" :options="internalLinkOption"/>
                 <CategorySelect v-model:value="linkForm.label" placeholder="Category" v-if="linkForm.type == 'category'" />
                 <TagSelect v-model:value="linkForm.label" placeholder="Tag" v-if="linkForm.type == 'tag'"  />   
             </n-form-item>
@@ -62,12 +63,12 @@ const visible = ref(false)
 const linkForm = ref<LinkSetting>({
     label: '',
     href: '',
-    type: 'home'
+    type: 'internal'
 })
-const linkTypeOptions = ref([
+const linkTypeOptions = [
     {
-        label: 'Home',
-        value: 'home'
+        label: 'Internal',
+        value: 'internal'
     },
     {
         label: 'Category',
@@ -80,7 +81,17 @@ const linkTypeOptions = ref([
         label: 'External',
         value: 'external'
     }
-])
+]
+
+const internalLinkOption = [
+    {
+        label: 'Home',
+        value: 'home'
+    },{
+        label: 'Board',
+        value: 'board'
+    }
+]
 
 const onTypeChange = () => {
     linkForm.value.href = ''
