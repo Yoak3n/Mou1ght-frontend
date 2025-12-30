@@ -9,7 +9,7 @@ export default async function Home() {
   return (
     <div className="w-full flex flex-col items-center justify-center">
       <ScreenPicture />
-      <div className="text-xl font-bold w-full flex flex-col items-center justify-center">
+      <div className="text-xl font-bold w-full flex flex-col items-center justify-center bg-amber-50">
         <div className="article-list w-4xl ">
           {articles &&
             articles.length > 0 ?

@@ -1,5 +1,5 @@
 import type { FC } from 'react';
-
+import Link from 'next/link';
 import { Card, CardContent, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
 import type { ArticleInfo } from '@/types/post';
 import LikeButton from '../interaction/like';
@@ -9,7 +9,12 @@ const ArticleCard: FC<{ article: ArticleInfo }> = ({ article }) => {
     return (
         <Card className="w-full">
             <CardHeader>
-                <CardTitle>{article.title}</CardTitle>
+                <CardTitle>
+                    <Link href={"/article/" + article.id}>
+                    {article.title}
+                    </Link>
+                    
+                    </CardTitle>
             </CardHeader>
             <CardContent>
                 <p className="text-sm text-gray-500">
