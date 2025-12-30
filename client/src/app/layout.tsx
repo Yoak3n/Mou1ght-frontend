@@ -5,6 +5,7 @@ import { getBlogSetting } from "@/lib/api";
 
 import "./globals.css";
 import Footer from "@/components/layout/footer";
+import { cn } from "@/lib/utils";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -32,7 +33,7 @@ export default async function RootLayout({
   return (
     <html lang="en">
       <body
-        className={`${geistSans.variable} ${geistMono.variable} antialiased`}
+        className ={cn("antialiased bg-amber-50",geistSans.variable,geistMono.variable)}
       >
         <Header links={links} />
         <main className="w-full">

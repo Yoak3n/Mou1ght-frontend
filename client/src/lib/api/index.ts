@@ -1,7 +1,7 @@
 import { BlogSetting, Response } from "@/types";
 import { ArticleInfo, PostListResponse } from "@/types/post";
 
-const BASE_URL = "http://127.0.0.1:10420/api/v1";
+const BASE_URL = process.env.BASE_URL;
 
 export async function getBlogSetting(): Promise<BlogSetting | null> {
     'use server'
@@ -55,7 +55,6 @@ export async function getArticleList(): Promise<ArticleInfo[] | null> {
         }
 
         const json: Response<PostListResponse> = await res.json();
-        console.log(json);
         if (json.code !== 0) {
             console.error("API Error:", json.message);
             return null;
