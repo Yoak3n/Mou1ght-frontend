@@ -10,9 +10,7 @@ export async function createMessage(data: CreateMessageRequest, token?: string):
         const headers: HeadersInit = {
             'Content-Type': 'application/json',
         };
-        // if (token) {
-        //     headers['Authorization'] = `Bearer ${token}`;
-        // }
+
 
         const res = await fetch(`${BASE_URL}/message/create`, {
             method: 'POST',
@@ -38,9 +36,9 @@ export async function updateMessage(data: UpdateMessageRequest, token?: string):
         const headers: HeadersInit = {
             'Content-Type': 'application/json',
         };
-        // if (token) {
-        //     headers['Authorization'] = `Bearer ${token}`;
-        // }
+        if (token) {
+            headers['Authorization'] = `Bearer ${token}`;
+        }
 
         const res = await fetch(`${BASE_URL}/message/update`, {
             method: 'POST',
@@ -121,32 +119,5 @@ export async function getMessageList(): Promise<MessageInfo[] | null> {
     } catch (error) {
         console.error("Fetch Error:", error);
         return null;
-    }
-}
-
-export async function deleteMessage(id: string, token?: string): Promise<boolean> {
-    try {
-        const headers: HeadersInit = {
-            'Content-Type': 'application/json',
-        };
-        if (token) {
-            headers['Authorization'] = `Bearer ${token}`;
-        }
-
-        const res = await fetch(`${BASE_URL}/message/delete/${id}`, {
-            method: 'DELETE',
-            headers: headers,
-        });
-
-        if (!res.ok) {
-            console.error(`Failed to delete message: ${res.status} ${res.statusText}`);
-            return false;
-        }
-
-        const json: Response<null> = await res.json();
-        return json.code === 0;
-    } catch (error) {
-        console.error("Fetch Error:", error);
-        return false;
     }
 }

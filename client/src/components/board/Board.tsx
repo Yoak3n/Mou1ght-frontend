@@ -179,21 +179,11 @@ export default function Board({ initialMessages, boardSettings }: BoardProps) {
             if (draggingMessageIdRef.current) {
                 const msg = messagesRef.current.find(m => m.id === draggingMessageIdRef.current);
                 if (msg) {
-                    const token = localStorage.getItem('token');
-                    if (token) {
-                        updateMessage({
-                            id: msg.id,
-                            content: msg.content,
-                            position: msg.position,
-                            author_ip: msg.author_ip
-                        }, token);
-                    } else {
-                        updateMessagePosition({
-                            id: msg.id,
-                            position: msg.position,
-                            author_ip: visitorTokenRef.current
-                        });
-                    }
+                    updateMessagePosition({
+                        id: msg.id,
+                        position: msg.position,
+                        author_ip: visitorTokenRef.current
+                    });
                 }
                 setDraggingMessageId(null);
             }
