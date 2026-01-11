@@ -25,18 +25,17 @@ const TableOfContents: React.FC<TOCProps> = ({ content }) => {
   }
 
   return (
-    <div className="text-sm text-gray-700 mb-4 bg-gray-50 p-4 rounded-lg border border-gray-100">
-      <div className="text-lg font-bold mb-2 text-gray-900">目录</div>
+    <nav className="text-sm text-gray-700">
       <ul className="space-y-1">
         {headings.map((heading, index) => (
           <li 
             key={index} 
             className={`transition-colors duration-200`}
-            style={{ paddingLeft: `${(heading.level - 1) * 1}rem` }}
+            style={{ paddingLeft: `${(heading.level - 1) * 0.75}rem` }}
           >
              <a 
                href={`#${heading.id}`} 
-               className="text-gray-600 hover:text-amber-600 hover:underline block truncate"
+               className="text-gray-600 hover:text-blue-600 hover:underline block truncate py-1"
                title={heading.text}
              >
                {heading.text}
@@ -44,7 +43,7 @@ const TableOfContents: React.FC<TOCProps> = ({ content }) => {
           </li>
         ))}
       </ul>
-    </div>
+    </nav>
   );
 };
 

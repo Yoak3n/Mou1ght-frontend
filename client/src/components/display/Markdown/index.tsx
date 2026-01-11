@@ -20,7 +20,6 @@ marked.setOptions({
 });
 const Markdown: FC<{ content: string }> = ({ content }) => {
   const html = marked.parse(content);
-  console.log(html)
   return (
     <div className="markdown-content text-lg text-gray-700 mb-4" dangerouslySetInnerHTML={{ __html: html }}>  
     </div>

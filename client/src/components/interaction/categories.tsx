@@ -7,8 +7,9 @@ import {
 } from "@/components/ui/collapsible"
 import { Button } from "@/components/ui/button"
 import { ChevronsUpDown } from "lucide-react"
-import { Sign } from "@/types/post";
+import { Badge } from "@/components/ui/badge";
 import Link from 'next/link';
+import { Sign } from "@/types/post";
 const Categories: FC<{ categories: Sign[] }> = ({ categories }) => {
     const [isOpen, setIsOpen] = useState(true)
     return (
@@ -28,12 +29,20 @@ const Categories: FC<{ categories: Sign[] }> = ({ categories }) => {
                     </Button>
                 </CollapsibleTrigger>
             </div>
-            <CollapsibleContent className="flex flex-col gap-2">
-                {
-                    categories.map(item => {
-                        return <Link key={item.id} href={`/category/${item.id}`}>{item.label}</Link>
-                    })
-                }
+            <CollapsibleContent className="px-2">
+                <div className="flex flex-wrap gap-2">
+                    {
+                        categories.map(item => {
+                            return (
+                                <Link key={item.id} href={`/category/${item.label}`}>
+                                    <Badge variant="secondary" className="hover:bg-secondary/80 cursor-pointer">
+                                        {item.label}
+                                    </Badge>
+                                </Link>
+                            )
+                        })
+                    }
+                </div>
             </CollapsibleContent>
         </Collapsible>
     );

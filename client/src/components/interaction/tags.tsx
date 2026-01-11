@@ -7,6 +7,7 @@ import {
 } from "@/components/ui/collapsible"
 import { Button } from "@/components/ui/button"
 import { ChevronsUpDown } from "lucide-react"
+import { Badge } from "@/components/ui/badge";
 import { Sign } from "@/types/post";
 import Link from "next/link";
 
@@ -30,12 +31,20 @@ const TagsList: FC<{tags: Sign[]}> = ({tags}) => {
                     </Button>
                 </CollapsibleTrigger>
             </div>
-            <CollapsibleContent className="flex flex-col gap-2">
-                {
-                    tags.map(item=> {
-                        return <Link key={item.id} href={`/tag/${item.id}`}>{item.label}</Link>
-                    })
-                }
+            <CollapsibleContent className="px-2">
+                <div className="flex flex-wrap gap-2">
+                    {
+                        tags.map(item=> {
+                            return (
+                                <Link key={item.id} href={`/tag/${item.label}`}>
+                                    <Badge variant="outline" className="hover:bg-accent cursor-pointer">
+                                        {item.label}
+                                    </Badge>
+                                </Link>
+                            )
+                        })
+                    }
+                </div>
             </CollapsibleContent>
         </Collapsible>
     )
