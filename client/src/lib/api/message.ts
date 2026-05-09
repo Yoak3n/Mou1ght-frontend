@@ -10,20 +10,14 @@ const BASE_URL = (() => {
     return trimmed.endsWith("/api/v1") ? trimmed : `${trimmed}/api/v1`;
 })();
 
-export async function createMessage(data: CreateMessageRequest, token?: string): Promise<boolean> {
+export async function createMessage(data: CreateMessageRequest): Promise<boolean> {
     try {
-        const headers: HeadersInit = {
-            'Content-Type': 'application/json',
-        };
-        if (token) {
-            headers['Authorization'] = `Bearer ${token}`;
-        }
-
-
         const res = await fetch(`${BASE_URL}/message/create`, {
             method: 'POST',
             body: JSON.stringify(data),
-            headers: headers,
+            headers: {
+                'Content-Type': 'application/json',
+            },
         });
         if (!res.ok) {
             console.error(`Failed to create message: ${res.status} ${res.statusText}`);
@@ -39,19 +33,14 @@ export async function createMessage(data: CreateMessageRequest, token?: string):
     }
 }
 
-export async function updateMessage(data: UpdateMessageRequest, token?: string): Promise<boolean> {
+export async function updateMessage(data: UpdateMessageRequest): Promise<boolean> {
     try {
-        const headers: HeadersInit = {
-            'Content-Type': 'application/json',
-        };
-        if (token) {
-            headers['Authorization'] = `Bearer ${token}`;
-        }
-
         const res = await fetch(`${BASE_URL}/message/update`, {
             method: 'POST',
             body: JSON.stringify(data),
-            headers: headers,
+            headers: {
+                'Content-Type': 'application/json',
+            },
         });
 
         if (!res.ok) {
@@ -69,14 +58,12 @@ export async function updateMessage(data: UpdateMessageRequest, token?: string):
 
 export async function updateMessagePosition(data: UpdateMessagePositionRequest): Promise<boolean> {
     try {
-        const headers: HeadersInit = {
-            'Content-Type': 'application/json',
-        };
-
         const res = await fetch(`${BASE_URL}/message/position`, {
             method: 'POST',
             body: JSON.stringify(data),
-            headers: headers,
+            headers: {
+                'Content-Type': 'application/json',
+            },
         });
 
         if (!res.ok) {
@@ -123,5 +110,19 @@ export async function getMessageList(): Promise<MessageInfo[] | null> {
     } catch (error) {
         console.error("Fetch Error:", error);
         return null;
+    }
+}
+
+export async function getOwnedMessageIDs(visitorToken: string): Promise<string[]> {
+    try {
+        const res = await fetch(`${BASE_URL}/message/owned?token=${encodeURIComponent(visitorToken)}`, {
+            method: 'GET',
+        });
+        if (!res.ok) return [];
+        const json: Response<{ ids: string[] }> = await res.json();
+        if (json.code !== 0) return [];
+        return json.data?.ids ?? [];
+    } catch {
+        return [];
     }
 }

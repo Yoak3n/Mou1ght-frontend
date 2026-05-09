@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { ref } from 'vue'
-import { NForm, NInput, NFormItem, NButton, NGrid, NGi } from 'naive-ui'
+import { NForm, NInput, NFormItem, NButton } from 'naive-ui'
 import type { FormInst, FormItemRule, FormRules } from 'naive-ui'
 import { useRouter } from 'vue-router';
 import useUserStore from '@/store/modules/user';

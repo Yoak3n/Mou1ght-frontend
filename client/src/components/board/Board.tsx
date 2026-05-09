@@ -3,7 +3,7 @@
 import { useState, useEffect, useRef } from 'react';
 import { MessageInfo, MessagePosition } from '@/types/post';
 import { Board as BoardConfig } from '@/types';
-import { createMessage, updateMessage, updateMessagePosition } from '@/lib/api/message';
+import { createMessage, updateMessagePosition, getOwnedMessageIDs } from '@/lib/api/message';
 import { getVisitorToken } from '@/lib/visitor';
 import Note from './Note';
 import { Button } from '@/components/ui/button';
@@ -23,18 +23,18 @@ export default function Board({ initialMessages, boardSettings }: BoardProps) {
     const messagesLayerRef = useRef<HTMLDivElement>(null);
     const [messages, setMessages] = useState<MessageInfo[]>(initialMessages);
     const [visitorToken, setVisitorToken] = useState<string>('');
-    const [isAdmin, setIsAdmin] = useState(false);
-    
+    const [ownedIds, setOwnedIds] = useState<Set<string>>(new Set());
+
     // Interaction States
     const [step, setStep] = useState<Step>('idle');
     const [questionAnswer, setQuestionAnswer] = useState('');
     const [newMessage, setNewMessage] = useState('');
     const [isSubmitting, setIsSubmitting] = useState(false);
-    
+
     // Positioning State
     const [tempPosition, setTempPosition] = useState<MessagePosition>({ x: 50, y: 50, z: 0 });
     const [isDraggingTemp, setIsDraggingTemp] = useState(false);
-    
+
     // Dragging Existing Note State
     const [draggingMessageId, setDraggingMessageId] = useState<string | null>(null);
     const [dragOffset, setDragOffset] = useState({ x: 0, y: 0 });
@@ -55,11 +55,16 @@ export default function Board({ initialMessages, boardSettings }: BoardProps) {
         setMessages(initialMessages);
     }, [initialMessages]);
 
-    // Initialize visitor token and admin status
+    // Initialize visitor token, admin status, and owned IDs (one-time load)
     useEffect(() => {
         (async () => {
-            setVisitorToken(await getVisitorToken());
-            setIsAdmin(!!localStorage.getItem('token'));
+            const token = await getVisitorToken();
+            setVisitorToken(token);
+            if (token) {
+                const ids = await getOwnedMessageIDs(token);
+                setOwnedIds(new Set(ids));
+                console.log(ids)
+            }
         })();
     }, []);
 
@@ -89,14 +94,13 @@ export default function Board({ initialMessages, boardSettings }: BoardProps) {
     const handleInputSubmit = () => {
         if (!newMessage.trim()) return;
         setStep('positioning');
-        
+
         const maxZ = messages.reduce((max, m) => Math.max(max, m.position.z), 0);
         setTempPosition(prev => ({ ...prev, z: maxZ + 1 }));
     };
 
     const handleFinalSubmit = async () => {
         setIsSubmitting(true);
-        const token = localStorage.getItem('token') || undefined;
         let ensuredVisitorToken = visitorTokenRef.current;
         if (!ensuredVisitorToken || ensuredVisitorToken.split('.').length !== 3) {
             ensuredVisitorToken = await getVisitorToken();
@@ -109,17 +113,19 @@ export default function Board({ initialMessages, boardSettings }: BoardProps) {
         if (visitorTokenRef.current !== ensuredVisitorToken) {
             setVisitorToken(ensuredVisitorToken);
         }
-        
+
         const success = await createMessage({
             content: newMessage,
             position: toServerPosition(tempPosition),
-            author_ip: ensuredVisitorToken 
-        }, token);
+            author_ip: ensuredVisitorToken
+        });
 
         if (success) {
             setStep('idle');
             setNewMessage('');
-            router.refresh(); 
+            router.refresh();
+            const ids = await getOwnedMessageIDs(ensuredVisitorToken);
+            setOwnedIds(new Set(ids));
             if (boardSettings?.need_reviewed) {
                 alert('Message submitted successfully! It will appear after review.');
             }
@@ -136,16 +142,15 @@ export default function Board({ initialMessages, boardSettings }: BoardProps) {
 
     const handleExistingNoteMouseDown = (e: React.MouseEvent, msg: MessageInfo) => {
         e.stopPropagation();
-        
-        // Permission check
-        const isOwner = msg.author_ip === visitorToken;
-        if (!isOwner && !isAdmin) return;
+
+        const canDrag = ownedIds.has(msg.id);
+        if (!canDrag) return;
 
         if (!messagesLayerRef.current) return;
         const rect = messagesLayerRef.current.getBoundingClientRect();
         const mouseX = ((e.clientX - rect.left) / rect.width) * 100;
         const mouseY = ((e.clientY - rect.top) / rect.height) * 100;
-        
+
         setDragOffset({
             x: mouseX - msg.position.x,
             y: mouseY - msg.position.y
@@ -154,8 +159,8 @@ export default function Board({ initialMessages, boardSettings }: BoardProps) {
         // Bring to front
         const maxZ = messages.reduce((max, m) => Math.max(max, m.position.z), 0);
         const newZ = maxZ + 1;
-        
-        setMessages(prev => prev.map(m => 
+
+        setMessages(prev => prev.map(m =>
             m.id === msg.id ? { ...m, position: { ...m.position, z: newZ } } : m
         ));
 
@@ -168,7 +173,7 @@ export default function Board({ initialMessages, boardSettings }: BoardProps) {
         const rect = messagesLayerRef.current.getBoundingClientRect();
         const mouseX = ((e.clientX - rect.left) / rect.width) * 100;
         const mouseY = ((e.clientY - rect.top) / rect.height) * 100;
-        
+
         if (isDraggingTemp) {
             const clampedX = Math.max(0, Math.min(100, mouseX));
             const clampedY = Math.max(0, Math.min(100, mouseY));
@@ -176,14 +181,12 @@ export default function Board({ initialMessages, boardSettings }: BoardProps) {
         } else if (draggingMessageId) {
             let newX = mouseX - dragOffset.x;
             let newY = mouseY - dragOffset.y;
-            
-            // Allow dragging slightly off-board? 
-            // Let's clamp to keep it visible.
+
             newX = Math.max(0, Math.min(100, newX));
             newY = Math.max(0, Math.min(100, newY));
 
-            setMessages(prev => prev.map(msg => 
-                msg.id === draggingMessageId 
+            setMessages(prev => prev.map(msg =>
+                msg.id === draggingMessageId
                 ? { ...msg, position: { ...msg.position, x: newX, y: newY } }
                 : msg
             ));
@@ -227,15 +230,15 @@ export default function Board({ initialMessages, boardSettings }: BoardProps) {
     }, []);
 
     return (
-        <div 
+        <div
             ref={boardRef}
             className="relative h-[80vh] bg-[#fdf5e6] rounded-xl border-8 border-[#8B4513] shadow-[inset_0_0_20px_rgba(0,0,0,0.2)] overflow-hidden select-none"
             onMouseMove={handleMouseMove}
         >
              {/* Cork texture pattern */}
-             <div className="absolute inset-0 opacity-20 pointer-events-none z-0" 
-                  style={{ 
-                      backgroundImage: 'url("data:image/svg+xml,%3Csvg width=\'6\' height=\'6\' viewBox=\'0 0 6 6\' xmlns=\'http://www.w3.org/2000/svg\'%3E%3Cg fill=\'%238B4513\' fill-opacity=\'0.4\' fill-rule=\'evenodd\'%3E%3Cpath d=\'M5 0h1v1H5V0zM0 5h1v1H0V5z\'/%3E%3C/g%3E%3C/svg%3E")' 
+             <div className="absolute inset-0 opacity-20 pointer-events-none z-0"
+                  style={{
+                      backgroundImage: 'url("data:image/svg+xml,%3Csvg width=\'6\' height=\'6\' viewBox=\'0 0 6 6\' xmlns=\'http://www.w3.org/2000/svg\'%3E%3Cg fill=\'%238B4513\' fill-opacity=\'0.4\' fill-rule=\'evenodd\'%3E%3Cpath d=\'M5 0h1v1H5V0zM0 5h1v1H0V5z\'/%3E%3C/g%3E%3C/svg%3E")'
                   }}>
              </div>
 
@@ -253,19 +256,18 @@ export default function Board({ initialMessages, boardSettings }: BoardProps) {
                          const isLegacy = msg.position.x === 0 && msg.position.y === 0;
                          const left = isLegacy ? ((idx % 4) * 20 + 5) + '%' : msg.position.x + '%';
                          const top = isLegacy ? (Math.floor(idx / 4) * 25 + 5) + '%' : msg.position.y + '%';
-                         
-                         const isOwner = msg.author_ip === visitorToken;
-                         const canDrag = isOwner || isAdmin;
+
+                         const canDrag = ownedIds.has(msg.id);
                          const isDragging = draggingMessageId === msg.id;
 
                          return (
-                            <div 
+                            <div
                                 key={`${msg.id}-${idx}`}
                                 className={`absolute pointer-events-auto ${canDrag ? 'cursor-move' : 'cursor-default'} ${isDragging ? '' : 'transition-all duration-75 ease-out'}`}
-                                style={{ 
-                                    left, 
+                                style={{
+                                    left,
                                     top,
-                                    zIndex: msg.position.z 
+                                    zIndex: msg.position.z
                                 }}
                                 onMouseDown={(e) => handleExistingNoteMouseDown(e, msg)}
                             >
@@ -274,10 +276,10 @@ export default function Board({ initialMessages, boardSettings }: BoardProps) {
                          );
                      })}
                      {step === 'positioning' && (
-                        <div 
+                        <div
                             className="absolute z-50 cursor-move pointer-events-auto"
-                            style={{ 
-                                left: `${tempPosition.x}%`, 
+                            style={{
+                                left: `${tempPosition.x}%`,
                                 top: `${tempPosition.y}%`,
                             }}
                             onMouseDown={handleTempMouseDown}
@@ -286,28 +288,28 @@ export default function Board({ initialMessages, boardSettings }: BoardProps) {
                                 <div className="absolute -top-12 left-1/2 -translate-x-1/2 bg-black/70 text-white text-xs px-2 py-1 rounded whitespace-nowrap pointer-events-none">
                                     Drag me!
                                 </div>
-                                <Note 
+                                <Note
                                     message={{
                                         id: 'temp',
                                         content: newMessage,
                                         position: tempPosition,
                                         state: { view: 0, like: 0, length: 0, status: 'draft' },
                                         time: { created_at: new Date().toISOString(), updated_at: '' },
-                                    }} 
-                                    index={999} 
+                                    }}
+                                    index={999}
                                 />
-                                
+
                                 <div className="absolute -bottom-16 left-1/2 -translate-x-1/2 flex gap-2">
-                                    <Button 
-                                        size="sm" 
+                                    <Button
+                                        size="sm"
                                         variant="secondary"
                                         className="bg-white/90 hover:bg-white shadow-lg text-red-600"
                                         onClick={() => setStep('input')}
                                     >
                                         Back
                                     </Button>
-                                    <Button 
-                                        size="sm" 
+                                    <Button
+                                        size="sm"
                                         className="bg-green-600 hover:bg-green-700 shadow-lg text-white"
                                         onClick={handleFinalSubmit}
                                         disabled={isSubmitting}
@@ -324,7 +326,7 @@ export default function Board({ initialMessages, boardSettings }: BoardProps) {
 
              {/* Floating Action Button */}
              {step === 'idle' && (
-                <Button 
+                <Button
                     onClick={handleStart}
                     className="fixed bottom-8 right-8 w-14 h-14 rounded-full shadow-2xl bg-amber-600 hover:bg-amber-700 text-white z-40 transition-all hover:scale-110"
                     size="icon"
@@ -338,7 +340,7 @@ export default function Board({ initialMessages, boardSettings }: BoardProps) {
             {step === 'question' && (
                 <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm p-4 animate-in fade-in duration-200">
                     <div className="bg-white rounded-lg shadow-2xl w-full max-w-md p-6 relative">
-                        <button 
+                        <button
                             onClick={() => setStep('idle')}
                             className="absolute top-4 right-4 text-gray-400 hover:text-gray-600"
                         >
@@ -346,10 +348,10 @@ export default function Board({ initialMessages, boardSettings }: BoardProps) {
                         </button>
                         <h2 className="text-xl font-bold mb-4 text-gray-800">Security Check</h2>
                         <p className="mb-4 text-gray-600">{boardSettings?.question}</p>
-                        <input 
-                            type="text" 
-                            className="w-full border p-2 rounded mb-4" 
-                            placeholder="Answer..." 
+                        <input
+                            type="text"
+                            className="w-full border p-2 rounded mb-4"
+                            placeholder="Answer..."
                             value={questionAnswer}
                             onChange={e => setQuestionAnswer(e.target.value)}
                             onKeyDown={e => e.key === 'Enter' && handleQuestionSubmit()}
@@ -367,17 +369,17 @@ export default function Board({ initialMessages, boardSettings }: BoardProps) {
             {step === 'input' && (
                 <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm p-4 animate-in fade-in duration-200">
                     <div className="bg-white rounded-lg shadow-2xl w-full max-w-md p-6 relative">
-                         <button 
+                         <button
                             onClick={() => setStep('idle')}
                             className="absolute top-4 right-4 text-gray-400 hover:text-gray-600"
                         >
                             <XIcon className="w-5 h-5" />
                         </button>
-                        
+
                         <h2 className="text-xl font-bold mb-4 text-gray-800">Write Message</h2>
                         <div className="bg-yellow-100 p-4 rounded-sm shadow-md mb-6 rotate-1">
-                            <textarea 
-                                placeholder="Write your message here..." 
+                            <textarea
+                                placeholder="Write your message here..."
                                 value={newMessage}
                                 onChange={(e) => setNewMessage(e.target.value)}
                                 className="w-full h-40 bg-transparent border-none focus:ring-0 resize-none outline-none text-gray-800 text-lg leading-relaxed placeholder:text-gray-400/70"
@@ -385,7 +387,7 @@ export default function Board({ initialMessages, boardSettings }: BoardProps) {
                                 autoFocus
                             />
                         </div>
-                        
+
                         <div className="flex justify-end gap-3">
                             <Button variant="ghost" onClick={() => setStep('idle')}>Cancel</Button>
                             <Button onClick={handleInputSubmit} disabled={!newMessage.trim()} className="bg-amber-600 hover:bg-amber-700">

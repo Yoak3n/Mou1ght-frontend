@@ -73,7 +73,6 @@ export interface MessageInfo {
     position: MessagePosition,
     state: PostState,
     time: PostTimeInfo,
-    author_ip?: string
 }
 
 export interface Attachment {

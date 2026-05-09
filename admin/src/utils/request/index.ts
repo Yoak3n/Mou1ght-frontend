@@ -4,8 +4,10 @@ import router from "@/router"
 import useUserStore from "@/store/modules/user"
 import { setToken } from "@/utils/storage"
 
+const baseURL = (import.meta.env.VITE_APP_BASE_API as string | undefined) || "/api/v1"
+
 let request = axios.create({
-    baseURL:import.meta.env.VITE_APP_BASE_API,
+    baseURL,
     timeout:5000,
 });
 
