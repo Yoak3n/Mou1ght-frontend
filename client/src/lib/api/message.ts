@@ -3,13 +3,21 @@
 import { Response } from "@/types";
 import { CreateMessageRequest, UpdateMessageRequest, UpdateMessagePositionRequest, MessageInfo, PostListResponse } from "@/types/post";
 
-const BASE_URL = process.env.BASE_URL;
+const BASE_URL = (() => {
+    const raw = process.env.BASE_URL || process.env.NEXT_PUBLIC_BASE_URL;
+    const base = (raw && raw.trim()) || "http://localhost:10420";
+    const trimmed = base.replace(/\/+$/, "");
+    return trimmed.endsWith("/api/v1") ? trimmed : `${trimmed}/api/v1`;
+})();
 
 export async function createMessage(data: CreateMessageRequest, token?: string): Promise<boolean> {
     try {
         const headers: HeadersInit = {
             'Content-Type': 'application/json',
         };
+        if (token) {
+            headers['Authorization'] = `Bearer ${token}`;
+        }
 
 
         const res = await fetch(`${BASE_URL}/message/create`, {
@@ -87,12 +95,8 @@ export async function updateMessagePosition(data: UpdateMessagePositionRequest):
 export async function getMessageList(): Promise<MessageInfo[] | null> {
     try {
         const req = {
-            filter: {
-                type: "single"
-            },
-            data: {
-                keyword: []
-            }
+            sort: "desc",
+            date_range: null
         }
         const res = await fetch(`${BASE_URL}/message/list`, {
             method: 'POST',
@@ -109,13 +113,13 @@ export async function getMessageList(): Promise<MessageInfo[] | null> {
         }
 
         const json: Response<PostListResponse> = await res.json();
-        console.log(JSON.stringify(json))
         if (json.code !== 0) {
             console.error("API Error:", json.message);
             return null;
         }
 
-        return json.data.messages || [];
+        const list = json.data.messages || [];
+        return Array.isArray(list) ? (list.filter((m): m is MessageInfo => !!m && typeof m === 'object')) : [];
     } catch (error) {
         console.error("Fetch Error:", error);
         return null;

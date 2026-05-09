@@ -21,6 +21,9 @@ const contextMenuHandler = (key: string) => {
         case 'updateArticle':
             $emitter.emit('article:updateAction')
             break
+        case 'changeStatus':
+            $emitter.emit('article:statusAction')
+            break
         case 'previewArticle':
             $emitter.emit('article:updateAction')
             break

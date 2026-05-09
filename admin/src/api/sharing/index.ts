@@ -5,7 +5,7 @@ import type { CreateSharingRequest } from "./type"
 
 const API = {
     CREATE_URL : "/sharing/create",
-    LIST_URL : "/sharing/list",
+    LIST_URL : "/sharing/list/admin",
     DELETE_URL : "/sharing/delete"
 }
 

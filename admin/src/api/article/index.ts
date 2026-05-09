@@ -1,12 +1,13 @@
 import request from "@/utils/request"
-import type { CreateArticleRequest, UpdateArticleRequest, PostListRequest } from "./type"
+import type { CreateArticleRequest, UpdateArticleRequest, PostListRequest, UpdatePostStatusRequest } from "./type"
 import type { Response,ArticleInfo, PostListResponse } from "@/types"
 const API = {
     CREATE_URL : "/article/create",
     UPDATE_URL : "/article/update",
     DELETE_URL : "/article/delete",
     DETAIL_URL : "/article/detail",
-    LIST_URL : "/article/list"
+    LIST_URL : "/article/list/admin",
+    STATUS_URL: "/article/status",
 }
 
 export const createArticle = (data:CreateArticleRequest)=> request.post<any,Response<null>>(API.CREATE_URL,data)
@@ -14,3 +15,4 @@ export const updateArticle = (data:UpdateArticleRequest)=> request.put<any,Respo
 export const deleteArticle = (id:string)=> request.delete<any,Response<null>>(`${API.DELETE_URL}/${id}`)
 export const detailArticle = (id:string)=> request.get<any,Response<ArticleInfo>>(`${API.DETAIL_URL}/${id}`)
 export const listArticle = async (data: PostListRequest) => request.post<any,Response<PostListResponse>>(API.LIST_URL,data)
+export const updateArticleStatus = (data: UpdatePostStatusRequest) => request.post<any, Response<null>>(API.STATUS_URL, data)

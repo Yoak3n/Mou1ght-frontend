@@ -138,6 +138,9 @@ export const contextMenuOptions:DropdownOption[] = [
         label: '更新文章',
         key: 'updateArticle'
     },{
+        label: '更改状态',
+        key: 'changeStatus'
+    },{
         label: '预览文章',
         key: 'previewArticle'
     }

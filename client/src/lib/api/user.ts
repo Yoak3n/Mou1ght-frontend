@@ -3,7 +3,12 @@
 import { Response } from "@/types";
 import { AuthTokenResponse, UserInfoResponse, UserLoginRequest, UserRegisterRequest } from "@/types/user";
 
-const BASE_URL = process.env.BASE_URL;
+const BASE_URL = (() => {
+    const raw = process.env.BASE_URL || process.env.NEXT_PUBLIC_BASE_URL;
+    const base = (raw && raw.trim()) || "http://localhost:10420";
+    const trimmed = base.replace(/\/+$/, "");
+    return trimmed.endsWith("/api/v1") ? trimmed : `${trimmed}/api/v1`;
+})();
 
 export async function userRegister(data: UserRegisterRequest): Promise<AuthTokenResponse | null> {
     'use server'

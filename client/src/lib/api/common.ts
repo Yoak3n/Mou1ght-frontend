@@ -3,7 +3,12 @@
 import { BlogSetting, Response } from "@/types";
 import { ArticleInfo, PostListResponse, CategoryGroup, Sign } from "@/types/post";
 
-const BASE_URL = process.env.BASE_URL;
+const BASE_URL = (() => {
+    const raw = process.env.BASE_URL || process.env.NEXT_PUBLIC_BASE_URL;
+    const base = (raw && raw.trim()) || "http://localhost:10420";
+    const trimmed = base.replace(/\/+$/, "");
+    return trimmed.endsWith("/api/v1") ? trimmed : `${trimmed}/api/v1`;
+})();
 
 export async function getBlogSetting(): Promise<BlogSetting | null> {
     try {
@@ -91,5 +96,41 @@ export async function getAllTags(): Promise<Sign[] | null> {
     } catch (error) {
         console.error("Fetch Error:", error);
         return null;
+    }
+}
+
+export async function viewPost(id: string, type: 'article' | 'sharing' | 'message'): Promise<boolean> {
+    try {
+        const url = type === 'message'
+            ? `${BASE_URL}/message/view/${id}`
+            : `${BASE_URL}/${type}/view/${id}?type=${type}`;
+        const res = await fetch(url, {
+            method: 'POST',
+            cache: "no-store",
+        });
+        if (!res.ok) return false;
+        const json: Response<null> = await res.json();
+        return json.code === 0;
+    } catch (error) {
+        console.error("Fetch Error:", error);
+        return false;
+    }
+}
+
+export async function likePost(id: string, type: 'article' | 'sharing' | 'message'): Promise<boolean> {
+    try {
+        const url = type === 'message'
+            ? `${BASE_URL}/message/like/${id}`
+            : `${BASE_URL}/${type}/like/${id}?type=${type}`;
+        const res = await fetch(url, {
+            method: 'POST',
+            cache: "no-store",
+        });
+        if (!res.ok) return false;
+        const json: Response<null> = await res.json();
+        return json.code === 0;
+    } catch (error) {
+        console.error("Fetch Error:", error);
+        return false;
     }
 }

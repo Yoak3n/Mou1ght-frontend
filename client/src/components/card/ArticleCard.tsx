@@ -46,7 +46,7 @@ const ArticleCard: FC<{ article: ArticleInfo }> = ({ article }) => {
                 
                 <div className="flex items-center gap-2 self-end sm:self-auto">
                     <ViewButton count={article.state.view} type="article" />
-                    <LikeButton count={article.state.like} type="article" />
+                    <LikeButton id={article.id} count={article.state.like} type="article" />
                 </div>
             </CardFooter>
         </Card>

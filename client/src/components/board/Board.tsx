@@ -20,6 +20,7 @@ type Step = 'idle' | 'question' | 'input' | 'positioning';
 export default function Board({ initialMessages, boardSettings }: BoardProps) {
     const router = useRouter();
     const boardRef = useRef<HTMLDivElement>(null);
+    const messagesLayerRef = useRef<HTMLDivElement>(null);
     const [messages, setMessages] = useState<MessageInfo[]>(initialMessages);
     const [visitorToken, setVisitorToken] = useState<string>('');
     const [isAdmin, setIsAdmin] = useState(false);
@@ -56,9 +57,17 @@ export default function Board({ initialMessages, boardSettings }: BoardProps) {
 
     // Initialize visitor token and admin status
     useEffect(() => {
-        setVisitorToken(getVisitorToken());
-        setIsAdmin(!!localStorage.getItem('token'));
+        (async () => {
+            setVisitorToken(await getVisitorToken());
+            setIsAdmin(!!localStorage.getItem('token'));
+        })();
     }, []);
+
+    const toServerPosition = (pos: MessagePosition): MessagePosition => ({
+        x: Math.round(pos.x),
+        y: Math.round(pos.y),
+        z: Math.round(pos.z),
+    });
 
     const handleStart = () => {
         if (boardSettings?.question) {
@@ -88,11 +97,23 @@ export default function Board({ initialMessages, boardSettings }: BoardProps) {
     const handleFinalSubmit = async () => {
         setIsSubmitting(true);
         const token = localStorage.getItem('token') || undefined;
+        let ensuredVisitorToken = visitorTokenRef.current;
+        if (!ensuredVisitorToken || ensuredVisitorToken.split('.').length !== 3) {
+            ensuredVisitorToken = await getVisitorToken();
+        }
+        if (!ensuredVisitorToken) {
+            alert('Failed to initialize visitor identity. Please refresh and try again.');
+            setIsSubmitting(false);
+            return;
+        }
+        if (visitorTokenRef.current !== ensuredVisitorToken) {
+            setVisitorToken(ensuredVisitorToken);
+        }
         
         const success = await createMessage({
             content: newMessage,
-            position: tempPosition,
-            author_ip: visitorToken 
+            position: toServerPosition(tempPosition),
+            author_ip: ensuredVisitorToken 
         }, token);
 
         if (success) {
@@ -120,8 +141,8 @@ export default function Board({ initialMessages, boardSettings }: BoardProps) {
         const isOwner = msg.author_ip === visitorToken;
         if (!isOwner && !isAdmin) return;
 
-        if (!boardRef.current) return;
-        const rect = boardRef.current.getBoundingClientRect();
+        if (!messagesLayerRef.current) return;
+        const rect = messagesLayerRef.current.getBoundingClientRect();
         const mouseX = ((e.clientX - rect.left) / rect.width) * 100;
         const mouseY = ((e.clientY - rect.top) / rect.height) * 100;
         
@@ -142,9 +163,9 @@ export default function Board({ initialMessages, boardSettings }: BoardProps) {
     };
 
     const handleMouseMove = (e: React.MouseEvent) => {
-        if ((!isDraggingTemp && !draggingMessageId) || !boardRef.current) return;
-        
-        const rect = boardRef.current.getBoundingClientRect();
+        if (!isDraggingTemp && !draggingMessageId) return;
+        if (!messagesLayerRef.current) return;
+        const rect = messagesLayerRef.current.getBoundingClientRect();
         const mouseX = ((e.clientX - rect.left) / rect.width) * 100;
         const mouseY = ((e.clientY - rect.top) / rect.height) * 100;
         
@@ -172,21 +193,34 @@ export default function Board({ initialMessages, boardSettings }: BoardProps) {
     // Global mouse up handler
     useEffect(() => {
         const handleGlobalMouseUp = () => {
-            if (isDraggingTempRef.current) {
-                setIsDraggingTemp(false);
-            }
-            
-            if (draggingMessageIdRef.current) {
-                const msg = messagesRef.current.find(m => m.id === draggingMessageIdRef.current);
-                if (msg) {
+            void (async () => {
+                if (isDraggingTempRef.current) {
+                    setIsDraggingTemp(false);
+                }
+
+                const draggingId = draggingMessageIdRef.current;
+                if (!draggingId) return;
+
+                const msg = messagesRef.current.find(m => m.id === draggingId);
+                if (!msg) {
+                    setDraggingMessageId(null);
+                    return;
+                }
+
+                let token = visitorTokenRef.current;
+                if (!token || token.split('.').length !== 3) {
+                    token = await getVisitorToken();
+                    if (token) setVisitorToken(token);
+                }
+                if (token && token.split('.').length === 3) {
                     updateMessagePosition({
                         id: msg.id,
-                        position: msg.position,
-                        author_ip: visitorTokenRef.current
+                        position: toServerPosition(msg.position),
+                        author_ip: token
                     });
                 }
                 setDraggingMessageId(null);
-            }
+            })();
         };
         window.addEventListener('mouseup', handleGlobalMouseUp);
         return () => window.removeEventListener('mouseup', handleGlobalMouseUp);
@@ -195,7 +229,7 @@ export default function Board({ initialMessages, boardSettings }: BoardProps) {
     return (
         <div 
             ref={boardRef}
-            className="relative min-h-[80vh] bg-[#fdf5e6] rounded-xl border-8 border-[#8B4513] shadow-[inset_0_0_20px_rgba(0,0,0,0.2)] overflow-hidden select-none"
+            className="relative h-[80vh] bg-[#fdf5e6] rounded-xl border-8 border-[#8B4513] shadow-[inset_0_0_20px_rgba(0,0,0,0.2)] overflow-hidden select-none"
             onMouseMove={handleMouseMove}
         >
              {/* Cork texture pattern */}
@@ -214,7 +248,7 @@ export default function Board({ initialMessages, boardSettings }: BoardProps) {
                 </div>
 
                 {/* Messages Layer */}
-                <div className="absolute inset-0 top-20 pointer-events-none">
+                <div ref={messagesLayerRef} className="absolute inset-0 top-20 pointer-events-none">
                      {messages.map((msg, idx) => {
                          const isLegacy = msg.position.x === 0 && msg.position.y === 0;
                          const left = isLegacy ? ((idx % 4) * 20 + 5) + '%' : msg.position.x + '%';
@@ -222,11 +256,12 @@ export default function Board({ initialMessages, boardSettings }: BoardProps) {
                          
                          const isOwner = msg.author_ip === visitorToken;
                          const canDrag = isOwner || isAdmin;
+                         const isDragging = draggingMessageId === msg.id;
 
                          return (
                             <div 
                                 key={`${msg.id}-${idx}`}
-                                className={`absolute transition-all duration-75 ease-out pointer-events-auto ${canDrag ? 'cursor-move' : 'cursor-default'}`}
+                                className={`absolute pointer-events-auto ${canDrag ? 'cursor-move' : 'cursor-default'} ${isDragging ? '' : 'transition-all duration-75 ease-out'}`}
                                 style={{ 
                                     left, 
                                     top,
@@ -238,56 +273,53 @@ export default function Board({ initialMessages, boardSettings }: BoardProps) {
                             </div>
                          );
                      })}
+                     {step === 'positioning' && (
+                        <div 
+                            className="absolute z-50 cursor-move pointer-events-auto"
+                            style={{ 
+                                left: `${tempPosition.x}%`, 
+                                top: `${tempPosition.y}%`,
+                            }}
+                            onMouseDown={handleTempMouseDown}
+                        >
+                            <div className="relative">
+                                <div className="absolute -top-12 left-1/2 -translate-x-1/2 bg-black/70 text-white text-xs px-2 py-1 rounded whitespace-nowrap pointer-events-none">
+                                    Drag me!
+                                </div>
+                                <Note 
+                                    message={{
+                                        id: 'temp',
+                                        content: newMessage,
+                                        position: tempPosition,
+                                        state: { view: 0, like: 0, length: 0, status: 'draft' },
+                                        time: { created_at: new Date().toISOString(), updated_at: '' },
+                                    }} 
+                                    index={999} 
+                                />
+                                
+                                <div className="absolute -bottom-16 left-1/2 -translate-x-1/2 flex gap-2">
+                                    <Button 
+                                        size="sm" 
+                                        variant="secondary"
+                                        className="bg-white/90 hover:bg-white shadow-lg text-red-600"
+                                        onClick={() => setStep('input')}
+                                    >
+                                        Back
+                                    </Button>
+                                    <Button 
+                                        size="sm" 
+                                        className="bg-green-600 hover:bg-green-700 shadow-lg text-white"
+                                        onClick={handleFinalSubmit}
+                                        disabled={isSubmitting}
+                                    >
+                                        {isSubmitting ? <Loader2 className="w-4 h-4 animate-spin" /> : <CheckIcon className="w-4 h-4" />}
+                                        Confirm
+                                    </Button>
+                                </div>
+                            </div>
+                        </div>
+                    )}
                 </div>
-
-                {/* Positioning Layer (Ghost Note) */}
-                {step === 'positioning' && (
-                    <div 
-                        className="absolute z-50 cursor-move"
-                        style={{ 
-                            left: `${tempPosition.x}%`, 
-                            top: `${tempPosition.y}%`,
-                        }}
-                        onMouseDown={handleTempMouseDown}
-                    >
-                         <div className="relative">
-                            <div className="absolute -top-12 left-1/2 -translate-x-1/2 bg-black/70 text-white text-xs px-2 py-1 rounded whitespace-nowrap pointer-events-none">
-                                Drag me!
-                            </div>
-                            <Note 
-                                message={{
-                                    id: 'temp',
-                                    content: newMessage,
-                                    position: tempPosition,
-                                    state: { view: 0, like: 0, length: 0, status: 'draft' },
-                                    time: { created_at: new Date().toISOString(), updated_at: '' },
-                                }} 
-                                index={999} 
-                            />
-                            
-                            {/* Confirmation Actions */}
-                            <div className="absolute -bottom-16 left-1/2 -translate-x-1/2 flex gap-2">
-                                <Button 
-                                    size="sm" 
-                                    variant="secondary"
-                                    className="bg-white/90 hover:bg-white shadow-lg text-red-600"
-                                    onClick={() => setStep('input')}
-                                >
-                                    Back
-                                </Button>
-                                <Button 
-                                    size="sm" 
-                                    className="bg-green-600 hover:bg-green-700 shadow-lg text-white"
-                                    onClick={handleFinalSubmit}
-                                    disabled={isSubmitting}
-                                >
-                                    {isSubmitting ? <Loader2 className="w-4 h-4 animate-spin" /> : <CheckIcon className="w-4 h-4" />}
-                                    Confirm
-                                </Button>
-                            </div>
-                         </div>
-                    </div>
-                )}
              </div>
 
              {/* Floating Action Button */}

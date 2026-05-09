@@ -2,14 +2,14 @@ import type { FC } from 'react';
 import Image from "next/image";
 const ScrennPicture: FC = () => {
   return (
-      <div className="screen-cover w-full h-full relative overflow-hidden group">
+      <div className="screen-cover w-full relative overflow-hidden group" style={{ aspectRatio: "2 / 1" }}>
         <Image 
           src="/cover.png" 
           alt="cover" 
-          width={1024} 
-          height={512} 
-          layout="responsive" 
-          objectFit="cover" 
+          fill
+          priority
+          sizes="100vw"
+          style={{ objectFit: "cover" }}
           className="blur-[2px] scale-105 group-hover:blur-0 group-hover:scale-100 transition-all duration-1000 ease-out group-hover:blur-none"
         />
         {/* Grid Pattern Overlay */}

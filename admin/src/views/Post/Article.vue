@@ -10,12 +10,12 @@
 </template>
 
 <script setup lang="ts">
-import { computed, onBeforeUnmount, onMounted, ref } from 'vue';
-import { NTabs, NTabPane } from 'naive-ui';
+import { computed, h, onBeforeUnmount, onMounted, ref } from 'vue';
+import { NSelect, NTabs, NTabPane } from 'naive-ui';
 
 import $emitter from '@/bus'
-import { listArticle} from '@/api/article'
-import type {PostListRequest} from '@/api/article/type'
+import { listArticle, updateArticleStatus } from '@/api/article'
+import type { PostListRequest, PostStatus } from '@/api/article/type'
 import type { ArticleInfo} from '@/types';
 import ArticleTable from '@/components/List/ArticleTable/index.vue'
 import ArticleForm from '@/components/Form/Article.vue';
@@ -36,9 +36,8 @@ const articlesData = ref<ArticleInfo[]>([])
 const openModify = () => tabKey.value = 'modify'
 const openPreview = () => {
 }
-onMounted(async()=>{
-    $emitter.on("article:updateAction",openModify)
-    $emitter.on('article:previewAction',openPreview)
+
+const fetchArticles = async () => {
     const req :PostListRequest= {
         filter: {
             type: 'single',
@@ -49,13 +48,70 @@ onMounted(async()=>{
             keyword: []
         }
     }
+    const res  = await listArticle(req)
+    if (res.code == 0) {
+        articlesData.value = res.data.articles!
+        return
+    }
+    throw new Error(res.message)
+}
+
+const normalizeToRequestStatus = (s?: string): PostStatus => {
+    switch (s) {
+        case 'draft':
+            return 'draft'
+        case 'published':
+            return 'publish'
+        case 'archived':
+            return 'archive'
+        default:
+            return 'draft'
+    }
+}
+
+const openStatus = () => {
+    if (!modifyID.value) {
+        window.$message.error('请选择文章')
+        return
+    }
+    const initial = normalizeToRequestStatus(modifyArticle.value?.state.status)
+    const status = ref<PostStatus>(initial)
+    window.$dialog.create({
+        title: '更改文章状态',
+        positiveText: '确认',
+        negativeText: '取消',
+        content: () => h(NSelect, {
+            value: status.value,
+            options: [
+                { label: '草稿', value: 'draft' },
+                { label: '发布', value: 'publish' },
+                { label: '归档', value: 'archive' },
+            ],
+            'onUpdate:value': (v: PostStatus) => status.value = v
+        }),
+        onPositiveClick: async () => {
+            const res = await updateArticleStatus({
+                post_type: 'article',
+                post_id: modifyID.value!,
+                status: status.value
+            })
+            if (res.code === 0) {
+                window.$message.success(res.message)
+                await fetchArticles()
+                return true
+            }
+            window.$message.error(res.message || '操作失败')
+            return false
+        }
+    })
+}
+
+onMounted(async()=>{
+    $emitter.on("article:updateAction",openModify)
+    $emitter.on('article:previewAction',openPreview)
+    $emitter.on('article:statusAction', openStatus)
     try {
-        const res  = await listArticle(req)
-        if (res.code == 0) {
-            articlesData.value = res.data.articles!
-        }else{
-            throw new Error(res.message)
-        } 
+        await fetchArticles()
     }catch(e:any){
         window.$message.error(e.message || '请求错误')
     }
@@ -63,6 +119,7 @@ onMounted(async()=>{
 onBeforeUnmount(()=>{
     $emitter.off('article:updateAction',openModify)
     $emitter.off('article:previewAction',openPreview)
+    $emitter.off('article:statusAction', openStatus)
 })
 const actionHandler = (id?: string) => modifyID.value = id
 </script>

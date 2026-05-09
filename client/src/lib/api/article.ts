@@ -3,7 +3,12 @@
 import { ArticleInfo, PostListResponse } from "@/types/post";
 import { Response } from "@/types";
 
-const BASE_URL = process.env.BASE_URL;
+const BASE_URL = (() => {
+    const raw = process.env.BASE_URL || process.env.NEXT_PUBLIC_BASE_URL;
+    const base = (raw && raw.trim()) || "http://localhost:10420";
+    const trimmed = base.replace(/\/+$/, "");
+    return trimmed.endsWith("/api/v1") ? trimmed : `${trimmed}/api/v1`;
+})();
 
 export async function getArticlesByCategoryLabel(category_name: string): Promise<ArticleInfo[] | null> {
     'use server'

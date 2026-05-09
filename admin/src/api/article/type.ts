@@ -31,3 +31,11 @@ export interface PostFilterData {
 export interface UpdateArticleRequest extends CreateArticleRequest {
     id: string
 }
+
+export type PostStatus = 'draft' | 'publish' | 'archive'
+
+export interface UpdatePostStatusRequest {
+    post_type: 'article' | 'sharing' | 'message'
+    post_id: string
+    status: PostStatus
+}

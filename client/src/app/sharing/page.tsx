@@ -43,7 +43,7 @@ const SharingPage: FC = async () => {
                       </CardContent>
                       <CardFooter className="flex justify-between border-t border-gray-100 pt-4">
                            <div className="flex gap-4">
-                               <LikeButton count={sharing.state.like} type="sharing" />
+                               <LikeButton id={sharing.id} count={sharing.state.like} type="sharing" />
                                <ViewButton count={sharing.state.view} type="sharing" />
                            </div>
                       </CardFooter>

@@ -2,6 +2,7 @@ import type { FC } from 'react';
 import type { Metadata } from 'next';
 import { getArticleDetail } from '@/lib/api/article';
 import { getBlogSetting } from '@/lib/api';
+import { viewPost } from '@/lib/api/common';
 import Markdown from '@/components/display/Markdown';
 import TableOfContents from '@/components/display/Markdown/toc';
 import {
@@ -40,7 +41,10 @@ export async function generateMetadata({ params }: { params: { article_id: strin
 
 const ArticleView: FC<{ params: { article_id: string } }> = async ({ params }) => {
     const { article_id } = await params;
-    const article = await getArticleDetail(article_id);
+    const [article] = await Promise.all([
+        getArticleDetail(article_id),
+        viewPost(article_id, 'article'),
+    ]);
 
     if (!article) {
         return (
@@ -94,7 +98,7 @@ const ArticleView: FC<{ params: { article_id: string } }> = async ({ params }) =
                                     </div>
 
                                     <div className="flex items-center gap-2">
-                                        <LikeButton count={article.state.like} type="article" />
+                                        <LikeButton id={article.id} count={article.state.like} type="article" />
                                         <ViewButton count={article.state.view} type="article" />
                                     </div>
                                 </div>

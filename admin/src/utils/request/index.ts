@@ -1,36 +1,35 @@
-// 进行axios二次封装：使用请求与响应拦截器
-import  axios   from "axios"
+import axios from "axios"
 import type { Response } from "@/types"
-// 第一步：利用axios的create方法，去创建axios实例（其他的配置：基础路径、超时限制）
+import router from "@/router"
+import useUserStore from "@/store/modules/user"
+import { setToken } from "@/utils/storage"
+
 let request = axios.create({
     baseURL:import.meta.env.VITE_APP_BASE_API,
     timeout:5000,
 });
 
-
-import useUserStore from "@/store/modules/user";
-
-
-// 第二步：为axios实例添加请求与响应拦截器
 request.interceptors.request.use((config)=>{
-    // config配置对象，headers属性请求头，经常给服务器携带公共参数
     const userStore = useUserStore()
-    // 添加token认证请求头
     config.headers.set("Authorization","Bearer " + userStore.token)
     return config
 })
 
 request.interceptors.response.use((response)=>{
-    // 简化输出
     return response.data 
 },(error)=>{
-    // 失败的回调，处理http网络错误
     let statusCode = error.response.status;
     let data = error.response.data as Response<any>
     let message = data.message || "网络出现问题"
     switch(statusCode){
         case 401:
             message = "TOKEN过期"
+            const userStore = useUserStore()
+            userStore.token = ''
+            userStore.auth = false
+            userStore.info = null
+            setToken('')
+            router.push('/entry')
             break;
         case 403:
             message = "无授权"
@@ -45,7 +44,6 @@ request.interceptors.response.use((response)=>{
             message = "网络出现问题"
             break;
     }
-    // window.$message.error(message,{ duration: 2500 })
     return Promise.reject(message)
 })
 

@@ -5,7 +5,7 @@ import { getArticleList } from "@/lib/api";
 
 
 export default async function Home() {
-  const articles = await getArticleList();
+  const articles = await getArticleList()
   return (
     <div className="w-full flex flex-col bg-gray-50/50 min-h-screen">
       <ScreenPicture />
