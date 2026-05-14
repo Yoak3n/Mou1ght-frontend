@@ -1,10 +1,11 @@
 <template>
     <div class="link-controller">
         <div ref="parent">
-            <div v-for="(element, index) in links" :index="index" :key="element.label" >
+            <div v-for="(element, index) in links" :index="index" :key="index" >
                 <n-space class="link-item">
                     <n-input-group>
-                        <n-input v-model:value="element.label" placeholder="Link Label" :disabled="element.type != 'external'"/>
+                        <n-input v-model:value="element.label" placeholder="Link Label" :disabled="element.type === 'category' || element.type === 'tag'"/>
+                        <n-select v-model:value="element.href" placeholder="Internal Destination" v-if="element.type == 'internal'" :options="internalDestinationOptions" />
                         <n-input v-model:value="element.href" placeholder="Link URL" v-if="element.type == 'external'" />
                         <n-select v-model:value="element.type" placeholder="Link Type" :options="linkTypeOptions" />
                     </n-input-group>
@@ -28,12 +29,14 @@
     <n-modal v-model:show="visible" title="Add Link" preset="card" :style="{ width: '800px' }">
         <n-form :model="linkForm">
             <n-form-item label="Label" >
-                <n-input v-model:value="linkForm.label" placeholder="Label" v-if="linkForm.type == 'external'" />
-                <n-select v-model:value="linkForm.label" placeholder="Internal link" v-if="linkForm.type == 'internal'" :options="internalLinkOption"/>
+                <n-input v-model:value="linkForm.label" placeholder="Label" v-if="linkForm.type == 'external' || linkForm.type == 'internal'" />
                 <CategorySelect v-model:value="linkForm.label" placeholder="Category" v-if="linkForm.type == 'category'" />
                 <TagSelect v-model:value="linkForm.label" placeholder="Tag" v-if="linkForm.type == 'tag'"  />   
             </n-form-item>
-            <n-form-item label="URL" v-if="linkForm.type == 'external' || linkForm.type == 'home'">
+            <n-form-item label="Destination" v-if="linkForm.type == 'internal'">
+                <n-select v-model:value="linkForm.href" placeholder="Internal Destination" :options="internalDestinationOptions" />
+            </n-form-item>
+            <n-form-item label="URL" v-if="linkForm.type == 'external'">
                 <n-input v-model:value="linkForm.href" placeholder="URL" />
             </n-form-item>
             <n-form-item label="Type">
@@ -86,12 +89,23 @@ const linkTypeOptions = [
 const internalLinkOption = [
     {
         label: 'Home',
-        value: 'home'
-    },{
+        value: '/'
+    },
+    {
         label: 'Board',
-        value: 'board'
-    }
+        value: '/board'
+    },
+    {
+        label: 'Categories',
+        value: '/categories'
+    },
+    {
+        label: 'Tags',
+        value: '/tags'
+    },
 ]
+
+const internalDestinationOptions = internalLinkOption
 
 const onTypeChange = () => {
     linkForm.value.href = ''
@@ -110,8 +124,13 @@ const removeLink = (index: number) => {
 }
 
 const submitLinkToModel = () => {
-    links.value.push(linkForm.value)
+    links.value.push({ ...linkForm.value })
     visible.value = false
+    linkForm.value = {
+        label: '',
+        href: '',
+        type: 'internal'
+    }
 }
 
 const [parent] = useDragAndDrop(links)

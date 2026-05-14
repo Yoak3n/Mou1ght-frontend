@@ -28,11 +28,13 @@ onMounted(async()=> {
         await userStore.userInfo();
     }catch (error) {
         window.$message.error(`User not logged in ${error}`,{ duration: 2000 });
+        if (route.path !== '/entry') {
+            router.replace('/entry');
+        }
     }
 })
 
 const pushRoute = (path: string) => {
-    console.log(path);
     if (path === route.path) return;
     router.push(path);
     document.title = route.meta.title as string || 'Mou1ght';

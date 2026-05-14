@@ -98,6 +98,11 @@ export default function Board({ initialMessages, boardSettings }: BoardProps) {
 
     const handleFinalSubmit = async () => {
         setIsSubmitting(true);
+        if (boardSettings?.question?.trim() && !questionAnswer.trim()) {
+            setStep('question');
+            setIsSubmitting(false);
+            return;
+        }
         let ensuredVisitorToken = visitorTokenRef.current;
         if (!ensuredVisitorToken || ensuredVisitorToken.split('.').length !== 3) {
             ensuredVisitorToken = await getVisitorToken();
@@ -115,7 +120,7 @@ export default function Board({ initialMessages, boardSettings }: BoardProps) {
             content: newMessage,
             position: toServerPosition(tempPosition),
             author_ip: ensuredVisitorToken,
-            board_answer: boardSettings?.question ? questionAnswer.trim() : undefined
+            ...(boardSettings?.question?.trim() ? { board_answer: questionAnswer.trim() } : {})
         });
 
         if (success) {
@@ -326,7 +331,7 @@ export default function Board({ initialMessages, boardSettings }: BoardProps) {
              {step === 'idle' && (
                 <Button
                     onClick={handleStart}
-                    className="fixed bottom-8 right-8 w-14 h-14 rounded-full shadow-2xl bg-amber-600 hover:bg-amber-700 text-white z-40 transition-all hover:scale-110"
+                    className="fixed bottom-8 right-8 w-14 h-14 rounded-full shadow-2xl bg-amber-600 hover:bg-amber-700 text-white z-[9000] transition-all hover:scale-110"
                     size="icon"
                     title="Add Message"
                 >
@@ -336,7 +341,7 @@ export default function Board({ initialMessages, boardSettings }: BoardProps) {
 
             {/* Question Modal */}
             {step === 'question' && (
-                <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm p-4 animate-in fade-in duration-200">
+                <div className="fixed inset-0 z-[10000] flex items-center justify-center bg-black/50 backdrop-blur-sm p-4 animate-in fade-in duration-200">
                     <div className="bg-white rounded-lg shadow-2xl w-full max-w-md p-6 relative">
                         <button
                             onClick={() => setStep('idle')}
@@ -365,7 +370,7 @@ export default function Board({ initialMessages, boardSettings }: BoardProps) {
 
             {/* Input Modal */}
             {step === 'input' && (
-                <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm p-4 animate-in fade-in duration-200">
+                <div className="fixed inset-0 z-[10000] flex items-center justify-center bg-black/50 backdrop-blur-sm p-4 animate-in fade-in duration-200">
                     <div className="bg-white rounded-lg shadow-2xl w-full max-w-md p-6 relative">
                          <button
                             onClick={() => setStep('idle')}

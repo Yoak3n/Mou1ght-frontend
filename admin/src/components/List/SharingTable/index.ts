@@ -128,6 +128,12 @@ export const contextMenuOptions:DropdownOption[] = [
     //     key: 'updateSharing'
     // },
     {
+        label: '设为公开',
+        key: 'publishSharing'
+    },{
+        label: '设为私密',
+        key: 'privateSharing'
+    },{
         label: '预览说说',
         key: 'previewSharing'
     },{

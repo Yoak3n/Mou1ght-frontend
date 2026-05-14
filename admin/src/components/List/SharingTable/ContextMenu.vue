@@ -21,6 +21,12 @@ const contextMenuHandler = (key: string) => {
         // case 'updateArticle':
         //     $emitter.emit('article:updateAction')
         //     break
+        case 'publishSharing':
+            $emitter.emit('sharing:publishAction')
+            break
+        case 'privateSharing':
+            $emitter.emit('sharing:privateAction')
+            break
         case 'previewSharing':
             $emitter.emit('sharing:previewAction')
             break

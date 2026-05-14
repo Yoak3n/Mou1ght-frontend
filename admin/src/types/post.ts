@@ -45,8 +45,11 @@ export interface Sign {
 }
 
 export interface Attachment {
-    file_name: string,
-    file_path: string
+    id?: string
+    url?: string
+    original_name?: string
+    file_name?: string
+    file_path?: string
 }
 
 export interface PostState {

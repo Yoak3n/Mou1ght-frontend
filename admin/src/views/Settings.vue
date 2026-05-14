@@ -62,10 +62,10 @@
             <n-card title="留言版设置">
                 <n-form>
                     <n-form-item label="留言板问题">
-                        <n-input placeholder="请输入添加留言需要回答的问题"  v-model:value="blogSetting.bottom_extra.html" />
+                        <n-input placeholder="请输入添加留言需要回答的问题"  v-model:value="blogSetting.board.question" />
                     </n-form-item>
                     <n-form-item label="留言板答案">
-                        <n-input placeholder="请输入留言板答案" v-model:value="blogSetting.bottom_extra.css" />
+                        <n-input placeholder="请输入留言板答案" v-model:value="blogSetting.board.answer" />
                     </n-form-item>
                     <n-form-item label="是否人工审核">
                         <n-switch v-model:value="blogSetting.board.need_reviewed"/>

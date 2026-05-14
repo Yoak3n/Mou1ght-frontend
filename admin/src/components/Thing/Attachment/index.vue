@@ -30,8 +30,8 @@ const { srcs } = defineProps<{
 
 const options = computed(() => {
     const ret =  srcs.map(item => ({
-        name: item.file_name,
-        src: item.file_path,
+        name: item.original_name ?? item.file_name ?? '',
+        src: item.url ?? item.file_path ?? '',
     }))
     return ret as Option[];
 })

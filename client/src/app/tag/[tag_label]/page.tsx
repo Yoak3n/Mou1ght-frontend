@@ -5,10 +5,17 @@ import ArticleCard from '@/components/card/ArticleCard';
 
 const TagPageList: FC<{ params: { tag_label: string } }> = async({ params }) => {
     const {tag_label} = await params;
-    const articles = await getArticlesByTagLabel(tag_label);
+    const decodedTagLabel = (() => {
+        try {
+            return decodeURIComponent(tag_label);
+        } catch {
+            return tag_label;
+        }
+    })();
+    const articles = await getArticlesByTagLabel(decodedTagLabel);
   return (
     <div className="container mx-auto px-4 py-8">
-      <h1 className="text-2xl font-bold mb-8">Tag: {tag_label}</h1>
+      <h1 className="text-2xl font-bold mb-8">Tag: {decodedTagLabel}</h1>
       {articles && articles.length > 0 ? (
           <div className="grid gap-6">
               {articles.map(article => (

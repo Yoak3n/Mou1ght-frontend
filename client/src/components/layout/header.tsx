@@ -1,5 +1,4 @@
 import Link from "next/link";
-import { Button } from "../ui/button"
 import { cn } from "@/lib/utils"
 import type { LinkSetting } from "@/types";
 import { Search } from "lucide-react";
@@ -9,22 +8,18 @@ interface HeaderProps {
 }
 const internalLinkNameMap: Record<string, string> = {
     home: 'Home',
-    categories: 'Categories',
-    tags: 'Tags',
     board: 'Board',
 }
 const internalLinkHrefMap: Record<string, string> = {
     home: '/',
-    categories: '/categories',
-    tags: '/tags',
     board: '/board',
 }
 
 export default function Header({ links = [] }: HeaderProps) {
     const defaultLinks = [
         { label: "Home", href: "/", type: 'internal' },
-        { label: "Categories", href: "/categories", type: 'internal' },
-        { label: "Tags", href: "/tags", type: 'internal' },
+        { label: "Board", href: "/board", type: 'internal' },
+        { label: "Sharing", href: "/sharing", type: 'internal' },
     ];
 
     const displayLinks = links.length > 0 ? links : defaultLinks;
@@ -52,10 +47,22 @@ export default function Header({ links = [] }: HeaderProps) {
                                 <li key={index}>
                                     {
                                         <Link
-                                            href={link.type === 'internal' ? internalLinkHrefMap[link.label] || '#' : link.href || '#'}
+                                            href={
+                                                link.type === 'internal'
+                                                    ? (link.href || internalLinkHrefMap[link.label] || '#')
+                                                    : link.type === 'category'
+                                                        ? (link.href || `/category/${encodeURIComponent(link.label || '')}`)
+                                                        : link.type === 'tag'
+                                                            ? (link.href || `/tag/${encodeURIComponent(link.label || '')}`)
+                                                            : (link.href || '#')
+                                            }
                                             className="relative text-gray-700 hover:text-amber-600 font-medium transition-colors py-1 block group/link"
                                         >
-                                            {link.type === 'internal' ? internalLinkNameMap[link.label] || link.label : link.label}
+                                            {
+                                                link.type === 'internal'
+                                                    ? (internalLinkNameMap[link.label] && !link.href ? internalLinkNameMap[link.label] : link.label)
+                                                    : link.label
+                                            }
                                             <span className="absolute left-0 bottom-0 w-full h-0.5 bg-amber-500 scale-x-0 group-hover/link:scale-x-100 transition-transform duration-300 origin-left"></span>
                                         </Link>
                                     }
