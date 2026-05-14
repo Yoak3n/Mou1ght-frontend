@@ -15,10 +15,12 @@
     "axios": "^1.16.0",
     "bytemd": "^1.22.0",
     "default-passive-events": "^4.0.0",
+    "echarts": "^6.0.0",
     "fluid-dnd": "^2.6.3",
     "mitt": "^3.0.1",
     "pinia": "^3.0.4",
-    "vue": "^3.5.34"
+    "vue": "^3.5.34",
+    "vue-echarts": "^8.0.1"
   },
   "devDependencies": {
     "@types/node": "^24.12.3",

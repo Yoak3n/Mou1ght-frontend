@@ -2,7 +2,7 @@ import { h} from 'vue'
 import type {Component} from 'vue'
 import { NIcon } from "naive-ui"
 import type { MenuOption } from 'naive-ui'
-import {BookOutline,PersonAddOutline,CarOutline,LockClosed} from '@vicons/ionicons5'
+import {BookOutline, CarOutline,LockClosed} from '@vicons/ionicons5'
 
 function renderIcon(icon: Component) {
     return () => h(NIcon, null, { default: () => h(icon) })
@@ -14,11 +14,6 @@ let  menuOptions: MenuOption[] = [
         key: 'home',
         path:'/home',
         icon: renderIcon(BookOutline)
-    }, {
-        label: '数据大图',
-        key: 'screen',
-        path:'/screen',
-        icon: renderIcon(PersonAddOutline),
     },{
         label: '内容管理',
         key: 'post',

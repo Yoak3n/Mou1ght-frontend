@@ -1,7 +1,11 @@
+ 'use client';
+
 import Link from "next/link";
 import { cn } from "@/lib/utils"
 import type { LinkSetting } from "@/types";
-import { Search } from "lucide-react";
+import { Check, Rss, Search } from "lucide-react";
+import { Button } from "@/components/ui/button";
+import { useEffect, useRef, useState } from "react";
 
 interface HeaderProps {
     links?: LinkSetting[];
@@ -25,6 +29,44 @@ export default function Header({ links = [] }: HeaderProps) {
     ];
 
     const displayLinks = links.length > 0 ? links : defaultLinks;
+    const [copied, setCopied] = useState(false);
+    const resetTimerRef = useRef<number | null>(null);
+
+    useEffect(() => {
+        return () => {
+            if (resetTimerRef.current) window.clearTimeout(resetTimerRef.current);
+        };
+    }, []);
+
+    const copyRssUrl = async () => {
+        if (typeof window === 'undefined') return;
+        const rssUrl = `${window.location.origin}/rss.xml`;
+
+        try {
+            if (navigator.clipboard?.writeText) {
+                await navigator.clipboard.writeText(rssUrl);
+            } else {
+                const textarea = document.createElement("textarea");
+                textarea.value = rssUrl;
+                textarea.setAttribute("readonly", "");
+                textarea.style.position = "fixed";
+                textarea.style.top = "0";
+                textarea.style.left = "0";
+                textarea.style.opacity = "0";
+                document.body.appendChild(textarea);
+                textarea.focus();
+                textarea.select();
+                document.execCommand("copy");
+                document.body.removeChild(textarea);
+            }
+
+            setCopied(true);
+            if (resetTimerRef.current) window.clearTimeout(resetTimerRef.current);
+            resetTimerRef.current = window.setTimeout(() => setCopied(false), 1500);
+        } catch {
+            setCopied(false);
+        }
+    };
 
     return (
         <div className="group fixed top-0 left-0 w-full z-50 hover:translate-y-0 -translate-y-[calc(100%-10px)] transition-transform duration-300">
@@ -43,6 +85,18 @@ export default function Header({ links = [] }: HeaderProps) {
                             className="bg-transparent border-none outline-none text-sm w-32 focus:w-48 transition-all text-gray-700 placeholder:text-gray-400"
                         />
                     </div>
+                    <Button
+                        type="button"
+                        variant="ghost"
+                        size="icon-sm"
+                        onClick={copyRssUrl}
+                        aria-label={copied ? "RSS 地址已复制" : "复制 RSS 订阅地址"}
+                        title={copied ? "已复制" : "复制 RSS 订阅地址"}
+                        className="text-gray-700 hover:text-amber-600"
+                    >
+                        {copied ? <Check /> : <Rss />}
+                        <span className="sr-only">{copied ? "已复制" : "复制 RSS 订阅地址"}</span>
+                    </Button>
                     <nav>
                         <ul className="flex items-center gap-6">
                             {displayLinks.map((link, index) => (

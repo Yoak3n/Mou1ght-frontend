@@ -39,9 +39,18 @@ export default async function RootLayout({
 }>) {
   const setting = await getBlogSetting();
   const links = setting?.nav_bar?.links || [];
+  const title = setting?.nav_bar?.website_information?.title || "Mou1ght";
 
   return (
     <html lang="en">
+      <head>
+        <link
+          rel="alternate"
+          type="application/rss+xml"
+          title={`${title} RSS`}
+          href="/rss.xml"
+        />
+      </head>
       <body
         className ={cn("antialiased ",geistSans.variable,geistMono.variable)}
       >
