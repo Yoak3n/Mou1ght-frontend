@@ -14,7 +14,7 @@ import { computed, h, onBeforeUnmount, onMounted, ref } from 'vue';
 import { NSelect, NTabs, NTabPane } from 'naive-ui';
 
 import $emitter from '@/bus'
-import { listArticle, updateArticleStatus } from '@/api/article'
+import { deleteArticle, listArticle, updateArticleStatus } from '@/api/article'
 import type { PostListRequest, PostStatus } from '@/api/article/type'
 import type { ArticleInfo} from '@/types';
 import ArticleTable from '@/components/List/ArticleTable/index.vue'
@@ -106,10 +106,35 @@ const openStatus = () => {
     })
 }
 
+const deleteArticleByID = () => {
+    if (!modifyID.value) {
+        window.$message.error('请选择文章')
+        return
+    }
+    const title = modifyArticle.value?.title || modifyID.value
+    window.$dialog.warning({
+        title: '删除文章',
+        content: `确定要删除文章 "${title}" 吗？`,
+        positiveText: '确定',
+        negativeText: '取消',
+        onPositiveClick: async () => {
+            const res = await deleteArticle(modifyID.value!)
+            if (res.code === 0) {
+                window.$message.success(res.message || '删除成功')
+                modifyID.value = undefined
+                await fetchArticles()
+                return
+            }
+            window.$message.error(res.message || '删除失败')
+        }
+    })
+}
+
 onMounted(async()=>{
     $emitter.on("article:updateAction",openModify)
     $emitter.on('article:previewAction',openPreview)
     $emitter.on('article:statusAction', openStatus)
+    $emitter.on('article:deleteAction', deleteArticleByID)
     try {
         await fetchArticles()
     }catch(e:any){
@@ -120,6 +145,7 @@ onBeforeUnmount(()=>{
     $emitter.off('article:updateAction',openModify)
     $emitter.off('article:previewAction',openPreview)
     $emitter.off('article:statusAction', openStatus)
+    $emitter.off('article:deleteAction', deleteArticleByID)
 })
 const actionHandler = (id?: string) => modifyID.value = id
 </script>

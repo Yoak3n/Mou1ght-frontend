@@ -118,8 +118,8 @@ export const createColumns = ({ action }: { action: (e:MouseEvent,data: RowData)
     ]
 }
 
-export const createData = (articles: ArticleInfo[]): RowData[] => {
-    return articles.map(item => {
+export const createData = (articles: (ArticleInfo | null | undefined)[]): RowData[] => {
+    return (articles || []).filter((v): v is ArticleInfo => !!v).map(item => {
         return {
             id: item.id,
             title: item.title,
@@ -143,5 +143,9 @@ export const contextMenuOptions:DropdownOption[] = [
     },{
         label: '预览文章',
         key: 'previewArticle'
+    },{
+        label: '删除文章',
+        key: 'deleteArticle',
+        type: 'error'
     }
 ]

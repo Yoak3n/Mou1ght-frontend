@@ -12,7 +12,7 @@ const BASE_URL = (() => {
 
 export async function getBlogSetting(): Promise<BlogSetting | null> {
     try {
-        const res = await fetch(`${BASE_URL}/setting/blog`, {
+        const res = await fetch(`${BASE_URL}/setting/blog/public`, {
             next: { revalidate: 0 } // No cache for now to ensure fresh data during dev
         });
 

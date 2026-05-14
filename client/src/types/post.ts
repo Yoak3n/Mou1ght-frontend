@@ -11,6 +11,7 @@ export interface CreateMessageRequest {
     content: string;
     position: MessagePosition;
     author_ip?: string;
+    board_answer?: string;
 }
 
 export interface UpdateMessageRequest {

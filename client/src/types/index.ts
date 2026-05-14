@@ -29,7 +29,6 @@ export interface BottomExtra {
 
 export interface Board {
     question: string;
-    answer: string;
     need_reviewed: boolean;
 }
 

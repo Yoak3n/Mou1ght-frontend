@@ -3,19 +3,22 @@
         <n-form-item path="title" label="标题">
             <n-input v-model:value="articleModel.title" placeholder="请输入文章标题" />
         </n-form-item>
-        <n-form-item label="分类">
-            <CategorySelect v-model:values="articleModel.categories" multiple />
-        </n-form-item>
-        <n-form-item label="标签">
-            <TagSelect v-model:values="articleModel.tags" multiple />
-        </n-form-item>
+        <n-grid :cols="24" :x-gap="24">
+            <n-form-item-grid-item label="分类" span="10">
+                <CategorySelect v-model:values="articleModel.categories" multiple />
+            </n-form-item-grid-item>
+            <n-form-item-grid-item label="标签" span="10">
+                <TagSelect v-model:values="articleModel.tags" multiple />
+            </n-form-item-grid-item>
+        </n-grid>
+
     </n-form>
     <Editor :handleSubmit="handleSubmit" :initContent="articleModel.content" />
 </template>
 
 <script setup lang="ts">
 import { onMounted, ref } from 'vue';
-import { NForm, NFormItem, NInput } from 'naive-ui';
+import { NForm, NFormItem, NInput, NGrid, NFormItemGridItem } from 'naive-ui';
 
 import useUserStore from '@/store/modules/user'
 import { createArticle, detailArticle, updateArticle } from '@/api';
@@ -50,7 +53,7 @@ onMounted(async () => {
                     tags: data.tags,
                     categories: data.categories
                 }
-            }else{
+            } else {
                 throw new Error(res.message)
             }
         } catch (e: any) {

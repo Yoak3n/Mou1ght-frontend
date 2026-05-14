@@ -84,11 +84,8 @@ export default function Board({ initialMessages, boardSettings }: BoardProps) {
     };
 
     const handleQuestionSubmit = () => {
-        if (questionAnswer.trim() === boardSettings?.answer) {
-            setStep('input');
-        } else {
-            alert('Incorrect answer. Please try again.');
-        }
+        if (!questionAnswer.trim()) return;
+        setStep('input');
     };
 
     const handleInputSubmit = () => {
@@ -117,7 +114,8 @@ export default function Board({ initialMessages, boardSettings }: BoardProps) {
         const success = await createMessage({
             content: newMessage,
             position: toServerPosition(tempPosition),
-            author_ip: ensuredVisitorToken
+            author_ip: ensuredVisitorToken,
+            board_answer: boardSettings?.question ? questionAnswer.trim() : undefined
         });
 
         if (success) {
@@ -136,7 +134,7 @@ export default function Board({ initialMessages, boardSettings }: BoardProps) {
     };
 
     // Drag Logic
-    const handleTempMouseDown = (e: React.MouseEvent) => {
+    const handleTempMouseDown = () => {
         setIsDraggingTemp(true);
     };
 
