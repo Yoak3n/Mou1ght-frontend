@@ -52,7 +52,7 @@ const SharingPage: FC = async () => {
 
                   <div className="columns-1 sm:columns-2 gap-6 [column-fill:balance]">
                     {sharingsByDay[dayKey]?.map((sharing) => (
-                      <div key={sharing.id} id={`sharing-${sharing.id}`} className="mb-6 [break-inside:avoid] scroll-mt-24">
+                      <div key={sharing.id} id={`sharing-${sharing.id}`} className="mb-6 break-inside-avoid scroll-mt-24">
                         <Card className="w-full bg-white hover:shadow-md transition-shadow">
                           <CardHeader className="flex flex-row items-center gap-4 pb-3">
                             <Avatar>

@@ -96,6 +96,10 @@ const internalLinkOption = [
         value: '/board'
     },
     {
+        label: 'Sharings',
+        value: '/sharings'
+    },
+    {
         label: 'Categories',
         value: '/categories'
     },

@@ -9,17 +9,19 @@ interface HeaderProps {
 const internalLinkNameMap: Record<string, string> = {
     home: 'Home',
     board: 'Board',
+    sharings: 'Sharings',
 }
 const internalLinkHrefMap: Record<string, string> = {
     home: '/',
     board: '/board',
+    sharings: '/sharings',
 }
 
 export default function Header({ links = [] }: HeaderProps) {
     const defaultLinks = [
         { label: "Home", href: "/", type: 'internal' },
         { label: "Board", href: "/board", type: 'internal' },
-        { label: "Sharing", href: "/sharing", type: 'internal' },
+        { label: "Sharings", href: "/sharings", type: 'internal' },
     ];
 
     const displayLinks = links.length > 0 ? links : defaultLinks;
