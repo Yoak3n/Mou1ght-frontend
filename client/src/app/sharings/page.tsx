@@ -7,6 +7,9 @@ import LikeButton from '@/components/interaction/like';
 import ViewButton from '@/components/display/view';
 import AttachmentGallery from '@/components/display/AttachmentGallery';
 
+// ISR：列表页缓存 5 分钟，后端发布/删除说说时按需失效。
+export const revalidate = 300;
+
 export const metadata: Metadata = {
   title: '日常分享',
   description: 'Daily sharing',

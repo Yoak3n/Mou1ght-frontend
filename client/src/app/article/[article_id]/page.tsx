@@ -2,9 +2,9 @@ import type { FC } from 'react';
 import type { Metadata } from 'next';
 import { getArticleDetail } from '@/lib/api/article';
 import { getBlogSetting } from '@/lib/api';
-import { viewPost } from '@/lib/api/common';
 import Markdown from '@/components/display/Markdown';
 import TableOfContents from '@/components/display/Markdown/toc';
+import ViewTracker from '@/components/interaction/viewTracker';
 import {
     Avatar,
     AvatarFallback,
@@ -18,6 +18,15 @@ import LikeButton from '@/components/interaction/like';
 import ViewButton from '@/components/display/view';
 import { CalendarIcon, ClockIcon } from 'lucide-react';
 import Link from 'next/link';
+
+// ISR：文章详情缓存 10 分钟，发布/更新/删除时由后端 webhook 按需失效。
+export const revalidate = 600;
+
+// 构建期后端通常不可达（返回空列表），不在构建期预渲染具体文章；
+// 未预渲染的路径在首个请求时渲染并进入 ISR 缓存。
+export async function generateStaticParams() {
+    return [];
+}
 
 export async function generateMetadata({ params }: { params: { article_id: string } }): Promise<Metadata> {
     const { article_id } = await params;
@@ -41,10 +50,7 @@ export async function generateMetadata({ params }: { params: { article_id: strin
 
 const ArticleView: FC<{ params: { article_id: string } }> = async ({ params }) => {
     const { article_id } = await params;
-    const [article] = await Promise.all([
-        getArticleDetail(article_id),
-        viewPost(article_id, 'article'),
-    ]);
+    const article = await getArticleDetail(article_id);
 
     if (!article) {
         return (
@@ -62,6 +68,7 @@ const ArticleView: FC<{ params: { article_id: string } }> = async ({ params }) =
 
     return (
         <div className="min-h-screen bg-gray-50/50 pb-12">
+            <ViewTracker id={article_id} type="article" />
             {/* Header / Banner Area (Optional, currently just spacing) */}
             {/* <div className="h-64 bg-linear-to-r from-blue-50 to-indigo-50 w-full absolute top-0 left-0 z-0"></div> */}
 

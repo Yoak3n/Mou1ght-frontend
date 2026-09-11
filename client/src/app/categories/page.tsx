@@ -6,6 +6,9 @@ import type { CategoryGroup } from "@/types/post";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 
+// ISR：分类列表变化少，缓存 10 分钟；分类增删时由后端按需失效。
+export const revalidate = 600;
+
 export const metadata: Metadata = {
   title: "分类",
   description: "Browse categories",

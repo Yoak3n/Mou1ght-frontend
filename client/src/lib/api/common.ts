@@ -1,5 +1,6 @@
 'use server'
 
+import { unstable_cache } from 'next/cache';
 import { BlogSetting, Response } from "@/types";
 import { ArticleInfo, PostListResponse, CategoryGroup, Sign } from "@/types/post";
 
@@ -10,11 +11,11 @@ const BASE_URL = (() => {
     return trimmed.endsWith("/api/v1") ? trimmed : `${trimmed}/api/v1`;
 })();
 
-export async function getBlogSetting(): Promise<BlogSetting | null> {
+// 公共读接口统一走 unstable_cache（tag: content）：
+// 支持后台 webhook 按需失效，也让使用 POST 列表接口的页面可以静态化（ISR）。
+const getBlogSettingCached = unstable_cache(async (): Promise<BlogSetting | null> => {
     try {
-        const res = await fetch(`${BASE_URL}/setting/blog/public`, {
-            next: { revalidate: 0 } // No cache for now to ensure fresh data during dev
-        });
+        const res = await fetch(`${BASE_URL}/setting/blog/public`, { cache: 'no-store' });
 
         if (!res.ok) {
             console.error(`Failed to fetch blog setting: ${res.status} ${res.statusText}`);
@@ -33,9 +34,13 @@ export async function getBlogSetting(): Promise<BlogSetting | null> {
         console.error("Fetch Error:", error);
         return null;
     }
+}, ['blog-setting'], { tags: ['content'], revalidate: 300 });
+
+export async function getBlogSetting(): Promise<BlogSetting | null> {
+    return getBlogSettingCached();
 }
 
-export async function getArticleList(): Promise<ArticleInfo[] | null> {
+const getArticleListCached = unstable_cache(async (): Promise<ArticleInfo[] | null> => {
     try {
         const data = {
             filter: {
@@ -52,8 +57,9 @@ export async function getArticleList(): Promise<ArticleInfo[] | null> {
             headers: {
                 'Content-Type': 'application/json',
             },
+            cache: 'no-store',
         });
-        if (res.status !== 200) {
+        if (!res.ok) {
             console.error(`Failed to fetch article list: ${res.status} ${res.statusText}`);
             return null;
         }
@@ -69,13 +75,15 @@ export async function getArticleList(): Promise<ArticleInfo[] | null> {
         console.error("Fetch Error:", error);
         return null;
     }
+}, ['article-list'], { tags: ['content'], revalidate: 300 });
+
+export async function getArticleList(): Promise<ArticleInfo[] | null> {
+    return getArticleListCached();
 }
 
-export async function getAllCategories(): Promise<CategoryGroup[] | null> {
+const getAllCategoriesCached = unstable_cache(async (): Promise<CategoryGroup[] | null> => {
     try {
-        const res = await fetch(`${BASE_URL}/category/all`, {
-            next: { revalidate: 0 }
-        });
+        const res = await fetch(`${BASE_URL}/category/all`, { cache: 'no-store' });
         if (!res.ok) return null;
         const json: Response<CategoryGroup[]> = await res.json();
         return json.code === 0 ? json.data : null;
@@ -83,13 +91,15 @@ export async function getAllCategories(): Promise<CategoryGroup[] | null> {
         console.error("Fetch Error:", error);
         return null;
     }
+}, ['category-all'], { tags: ['content'], revalidate: 600 });
+
+export async function getAllCategories(): Promise<CategoryGroup[] | null> {
+    return getAllCategoriesCached();
 }
 
-export async function getAllTags(): Promise<Sign[] | null> {
+const getAllTagsCached = unstable_cache(async (): Promise<Sign[] | null> => {
     try {
-        const res = await fetch(`${BASE_URL}/tag/all`, {
-            next: { revalidate: 0 }
-        });
+        const res = await fetch(`${BASE_URL}/tag/all`, { cache: 'no-store' });
         if (!res.ok) return null;
         const json: Response<Sign[]> = await res.json();
         return json.code === 0 ? json.data : null;
@@ -97,6 +107,10 @@ export async function getAllTags(): Promise<Sign[] | null> {
         console.error("Fetch Error:", error);
         return null;
     }
+}, ['tag-all'], { tags: ['content'], revalidate: 600 });
+
+export async function getAllTags(): Promise<Sign[] | null> {
+    return getAllTagsCached();
 }
 
 export async function viewPost(id: string, type: 'article' | 'sharing' | 'message'): Promise<boolean> {

@@ -2,6 +2,12 @@ import type { FC } from 'react';
 import { getArticlesByCategoryLabel } from '@/lib/api';
 import ArticleCard from '@/components/card/ArticleCard';
 
+// ISR：按分类聚合的文章列表缓存 10 分钟，后端发布/删除文章时按需失效。
+export const revalidate = 600;
+
+export async function generateStaticParams() {
+    return [];
+}
 
 const CategoryDetail: FC<{ params: { category_label: string } }> = async ({ params }) => {
   const { category_label } = await params;

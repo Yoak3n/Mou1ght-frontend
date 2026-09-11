@@ -2,7 +2,8 @@ import ArticleCard from "@/components/card/ArticleCard";
 import ScreenPicture from "@/components/display/screen";
 import { getArticleList } from "@/lib/api";
 
-
+// ISR：首页缓存 5 分钟，后台发布内容时由后端 webhook 按需失效。
+export const revalidate = 300;
 
 export default async function Home() {
   const articles = await getArticleList()

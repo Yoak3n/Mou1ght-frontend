@@ -2,6 +2,9 @@ import type { MetadataRoute } from "next";
 import { getAllCategories, getAllTags, getArticleList } from "@/lib/api";
 import type { CategoryGroup } from "@/types/post";
 
+// ISR：sitemap 每小时重建一次，发布文章时由后端 webhook 一并失效。
+export const revalidate = 3600;
+
 function getSiteUrl(): string {
   const raw =
     process.env.SITE_URL ||

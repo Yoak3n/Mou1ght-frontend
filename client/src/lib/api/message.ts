@@ -1,5 +1,6 @@
 'use server'
 
+import { unstable_cache } from 'next/cache';
 import { Response } from "@/types";
 import { CreateMessageRequest, UpdateMessageRequest, UpdateMessagePositionRequest, MessageInfo, PostListResponse } from "@/types/post";
 
@@ -18,6 +19,7 @@ export async function createMessage(data: CreateMessageRequest): Promise<boolean
             headers: {
                 'Content-Type': 'application/json',
             },
+            cache: 'no-store',
         });
         if (!res.ok) {
             console.error(`Failed to create message: ${res.status} ${res.statusText}`);
@@ -41,6 +43,7 @@ export async function updateMessage(data: UpdateMessageRequest): Promise<boolean
             headers: {
                 'Content-Type': 'application/json',
             },
+            cache: 'no-store',
         });
 
         if (!res.ok) {
@@ -64,6 +67,7 @@ export async function updateMessagePosition(data: UpdateMessagePositionRequest):
             headers: {
                 'Content-Type': 'application/json',
             },
+            cache: 'no-store',
         });
 
         if (!res.ok) {
@@ -79,7 +83,8 @@ export async function updateMessagePosition(data: UpdateMessagePositionRequest):
     }
 }
 
-export async function getMessageList(): Promise<MessageInfo[] | null> {
+// 留言列表读接口走 unstable_cache（tag: content），访客留言/后台审核后按需失效。
+const getMessageListCached = unstable_cache(async (): Promise<MessageInfo[] | null> => {
     try {
         const req = {
             sort: "desc",
@@ -91,7 +96,7 @@ export async function getMessageList(): Promise<MessageInfo[] | null> {
             headers: {
                 'Content-Type': 'application/json',
             },
-            next: { revalidate: 0 }
+            cache: 'no-store',
         });
 
         if (!res.ok) {
@@ -111,12 +116,17 @@ export async function getMessageList(): Promise<MessageInfo[] | null> {
         console.error("Fetch Error:", error);
         return null;
     }
+}, ['message-list'], { tags: ['content'], revalidate: 60 });
+
+export async function getMessageList(): Promise<MessageInfo[] | null> {
+    return getMessageListCached();
 }
 
 export async function getOwnedMessageIDs(visitorToken: string): Promise<string[]> {
     try {
         const res = await fetch(`${BASE_URL}/message/owned?token=${encodeURIComponent(visitorToken)}`, {
             method: 'GET',
+            cache: 'no-store',
         });
         if (!res.ok) return [];
         const json: Response<{ ids: string[] }> = await res.json();
@@ -124,5 +134,20 @@ export async function getOwnedMessageIDs(visitorToken: string): Promise<string[]
         return json.data?.ids ?? [];
     } catch {
         return [];
+    }
+}
+
+export async function fetchVisitorToken(): Promise<string> {
+    try {
+        const res = await fetch(`${BASE_URL}/message/visitor`, {
+            method: 'GET',
+            cache: 'no-store',
+        });
+        if (!res.ok) return '';
+        const json: Response<{ id: string }> = await res.json();
+        const token = json.data?.id;
+        return typeof token === 'string' ? token : '';
+    } catch {
+        return '';
     }
 }

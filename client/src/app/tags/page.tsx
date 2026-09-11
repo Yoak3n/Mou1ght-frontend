@@ -5,6 +5,9 @@ import { getAllTags } from "@/lib/api";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 
+// ISR：标签列表变化少，缓存 10 分钟；标签增删时由后端按需失效。
+export const revalidate = 600;
+
 export const metadata: Metadata = {
   title: "标签",
   description: "Browse tags",

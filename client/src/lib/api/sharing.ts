@@ -1,5 +1,6 @@
 'use server'
 
+import { unstable_cache } from 'next/cache';
 import { Response } from "@/types";
 import { CreateSharingRequest, PostListResponse, SharingInfo } from "@/types/post";
 
@@ -10,8 +11,8 @@ const BASE_URL = (() => {
     return trimmed.endsWith("/api/v1") ? trimmed : `${trimmed}/api/v1`;
 })();
 
-export async function getSharingList(): Promise<SharingInfo[] | null> {
-    'use server'
+// 说说读接口走 unstable_cache（tag: content），后台发布/删除时按需失效。
+const getSharingListCached = unstable_cache(async (): Promise<SharingInfo[] | null> => {
     try {
         const req = {
             filter: {
@@ -27,7 +28,7 @@ export async function getSharingList(): Promise<SharingInfo[] | null> {
             headers: {
                 'Content-Type': 'application/json',
             },
-            next: { revalidate: 0 }
+            cache: 'no-store',
         });
         if (!res.ok) {
             console.error(`Failed to fetch sharing list: ${res.status} ${res.statusText}`);
@@ -45,6 +46,10 @@ export async function getSharingList(): Promise<SharingInfo[] | null> {
         console.error("Fetch Error:", error);
         return null;
     }
+}, ['sharing-list'], { tags: ['content'], revalidate: 300 });
+
+export async function getSharingList(): Promise<SharingInfo[] | null> {
+    return getSharingListCached();
 }
 
 export async function deleteSharing(id: string, token?: string): Promise<boolean> {
@@ -60,6 +65,7 @@ export async function deleteSharing(id: string, token?: string): Promise<boolean
         const res = await fetch(`${BASE_URL}/sharing/delete/${id}`, {
             method: 'DELETE',
             headers: headers,
+            cache: 'no-store',
         });
 
         if (!res.ok) {
