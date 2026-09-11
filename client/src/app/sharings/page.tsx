@@ -35,11 +35,11 @@ const SharingPage: FC = async () => {
   const dayAnchorId = (dayKey: string) => `day-${dayKey}`;
 
   return (
-    <div className="min-h-screen bg-gray-50/50">
+    <div className="min-h-screen bg-muted/40">
       <div className="container mx-auto px-4 py-8 max-w-6xl">
         <div className="flex items-end justify-between mb-8">
           <h1 className="text-2xl font-bold">日常分享</h1>
-          <span className="text-sm text-gray-500">
+          <span className="text-sm text-muted-foreground">
             {sharings?.length ? `${sharings.length} 条` : ''}
           </span>
         </div>
@@ -50,13 +50,13 @@ const SharingPage: FC = async () => {
               {dayKeys.map((dayKey) => (
                 <section key={dayKey} id={dayAnchorId(dayKey)} className="scroll-mt-24">
                   <div className="flex items-center justify-between mb-4">
-                    <h2 className="text-base font-semibold text-gray-800">{formatDayLabel(dayKey)}</h2>
+                    <h2 className="text-base font-semibold text-foreground">{formatDayLabel(dayKey)}</h2>
                   </div>
 
                   <div className="columns-1 sm:columns-2 gap-6 [column-fill:balance]">
                     {sharingsByDay[dayKey]?.map((sharing) => (
                       <div key={sharing.id} id={`sharing-${sharing.id}`} className="mb-6 break-inside-avoid scroll-mt-24">
-                        <Card className="w-full bg-white hover:shadow-md transition-shadow">
+                        <Card className="w-full bg-card hover:shadow-md transition-shadow">
                           <CardHeader className="flex flex-row items-center gap-4 pb-3">
                             <Avatar>
                               <AvatarImage src={sharing.author.avatar} alt={sharing.author.username} />
@@ -66,18 +66,18 @@ const SharingPage: FC = async () => {
                             </Avatar>
                             <div className="flex flex-col min-w-0">
                               <span className="font-semibold truncate">{sharing.author.username}</span>
-                              <span className="text-xs text-gray-500">
+                              <span className="text-xs text-muted-foreground">
                                 {new Date(sharing.time.created_at).toLocaleString()}
                               </span>
                             </div>
                           </CardHeader>
 
                           <CardContent>
-                            <p className="whitespace-pre-wrap text-gray-800 leading-relaxed">{sharing.content}</p>
+                            <p className="whitespace-pre-wrap text-foreground leading-relaxed">{sharing.content}</p>
                             <AttachmentGallery attachments={sharing.attachments} />
                           </CardContent>
 
-                          <CardFooter className="flex justify-between border-t border-gray-100 pt-3">
+                          <CardFooter className="flex justify-between border-t border-border pt-3">
                             <div className="flex gap-4">
                               <LikeButton id={sharing.id} count={sharing.state.like} type="sharing" />
                               <ViewButton count={sharing.state.view} type="sharing" />
@@ -93,12 +93,12 @@ const SharingPage: FC = async () => {
 
             <aside className="hidden lg:block fixed right-0 top-0 bottom-0 z-10 w-72">
               <div className="relative h-full pt-24 pb-8 pl-6 pr-4">
-                <div className="absolute right-0 top-0 bottom-0 w-px bg-gradient-to-b from-transparent via-gray-200 to-transparent" />
-                <div className="absolute right-2 top-0 bottom-0 w-px bg-gray-100" />
+                <div className="absolute right-0 top-0 bottom-0 w-px bg-gradient-to-b from-transparent via-border to-transparent" />
+                <div className="absolute right-2 top-0 bottom-0 w-px bg-border" />
 
-                <div className="text-sm font-semibold text-gray-800 mb-3">时间轴</div>
+                <div className="text-sm font-semibold text-foreground mb-3">时间轴</div>
                 <div className="relative pl-4">
-                  <div className="absolute left-[7px] top-1 bottom-1 w-px bg-gray-200" />
+                  <div className="absolute left-[7px] top-1 bottom-1 w-px bg-border" />
                   <div className="max-h-[calc(100vh-9rem)] overflow-auto pr-2">
                     <ul className="space-y-2">
                       {dayKeys.map((dayKey, index) => {
@@ -115,8 +115,8 @@ const SharingPage: FC = async () => {
                             {yearChanged ? (
                               <li aria-hidden className="py-1">
                                 <div className="flex items-center h-8 pl-16">
-                                  <div className="h-[2px] w-14 bg-gray-400" />
-                                  <div className="ml-2 text-[11px] text-gray-400">{year}</div>
+                                  <div className="h-[2px] w-14 bg-border" />
+                                  <div className="ml-2 text-[11px] text-muted-foreground/70">{year}</div>
                                 </div>
                               </li>
                             ) : null}
@@ -124,8 +124,8 @@ const SharingPage: FC = async () => {
                             {monthChanged ? (
                               <li aria-hidden className="py-1">
                                 <div className="flex items-center h-8 pl-16">
-                                  <div className="w-14 border-t border-dashed border-gray-300" />
-                                  <div className="ml-2 text-[11px] text-gray-400">{Number(month)}月</div>
+                                  <div className="w-14 border-t border-dashed border-border" />
+                                  <div className="ml-2 text-[11px] text-muted-foreground/70">{Number(month)}月</div>
                                 </div>
                               </li>
                             ) : null}
@@ -135,9 +135,9 @@ const SharingPage: FC = async () => {
                                 href={`#${dayAnchorId(dayKey)}`}
                                 className="group relative flex items-center h-8 pl-16 outline-none"
                               >
-                                <span className="absolute left-0 top-1/2 -translate-y-1/2 h-px w-14 bg-gray-300 group-hover:bg-gray-600 transition-colors" />
+                                <span className="absolute left-0 top-1/2 -translate-y-1/2 h-px w-14 bg-border group-hover:bg-foreground/60 transition-colors" />
                                 <span className="sr-only">{formatDayLabel(dayKey)}</span>
-                                <span className="text-xs text-gray-500 opacity-0 translate-x-1 group-hover:opacity-100 group-hover:translate-x-0 transition whitespace-nowrap">
+                                <span className="text-xs text-muted-foreground opacity-0 translate-x-1 group-hover:opacity-100 group-hover:translate-x-0 transition whitespace-nowrap">
                                   {formatDayLabel(dayKey)}
                                 </span>
                               </a>
@@ -152,7 +152,7 @@ const SharingPage: FC = async () => {
             </aside>
           </div>
         ) : (
-          <p className="text-gray-500 text-center py-10">暂无分享内容</p>
+          <p className="text-muted-foreground text-center py-10">暂无分享内容</p>
         )}
       </div>
     </div>

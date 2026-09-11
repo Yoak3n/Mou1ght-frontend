@@ -17,12 +17,12 @@ export default async function Home({ searchParams }: { searchParams: Promise<{ p
   const totalPages = Math.max(1, Math.ceil(total / PAGE_SIZE));
 
   return (
-    <div className="w-full flex flex-col bg-gray-50/50 min-h-screen">
+    <div className="w-full flex flex-col bg-muted/40 min-h-screen">
       <ScreenPicture />
       <div className="w-full flex flex-col items-center justify-center py-12 px-4 sm:px-6 lg:px-8">
         <div className="w-full max-w-4xl space-y-8">
-          <div className="flex items-center justify-between border-b border-gray-200 pb-4">
-             <h2 className="text-3xl font-bold tracking-tight text-gray-900">Latest Articles</h2>
+          <div className="flex items-center justify-between border-b border-border pb-4">
+             <h2 className="text-3xl font-bold tracking-tight text-foreground">Latest Articles</h2>
           </div>
           
           <div className="article-list grid gap-6 sm:grid-cols-1 md:grid-cols-1">
@@ -32,7 +32,7 @@ export default async function Home({ searchParams }: { searchParams: Promise<{ p
               <ArticleCard key={article.id} article={article} />
             ))
             : (
-              <div className="text-center py-12 text-gray-500">
+              <div className="text-center py-12 text-muted-foreground">
                 No Articles Found
               </div>
             )
@@ -44,27 +44,27 @@ export default async function Home({ searchParams }: { searchParams: Promise<{ p
               {page > 1 ? (
                 <Link
                   href={`/?page=${page - 1}`}
-                  className="px-4 py-2 rounded-lg border border-gray-200 bg-white text-gray-700 hover:bg-gray-50"
+                  className="px-4 py-2 rounded-lg border border-border bg-card text-foreground hover:bg-accent"
                 >
                   上一页
                 </Link>
               ) : (
-                <span className="px-4 py-2 rounded-lg border border-gray-200 bg-gray-50 text-gray-400 cursor-not-allowed">
+                <span className="px-4 py-2 rounded-lg border border-border bg-muted text-muted-foreground/60 cursor-not-allowed">
                   上一页
                 </span>
               )}
-              <span className="text-gray-500">
+              <span className="text-muted-foreground">
                 第 {page} / {totalPages} 页
               </span>
               {page < totalPages ? (
                 <Link
                   href={`/?page=${page + 1}`}
-                  className="px-4 py-2 rounded-lg border border-gray-200 bg-white text-gray-700 hover:bg-gray-50"
+                  className="px-4 py-2 rounded-lg border border-border bg-card text-foreground hover:bg-accent"
                 >
                   下一页
                 </Link>
               ) : (
-                <span className="px-4 py-2 rounded-lg border border-gray-200 bg-gray-50 text-gray-400 cursor-not-allowed">
+                <span className="px-4 py-2 rounded-lg border border-border bg-muted text-muted-foreground/60 cursor-not-allowed">
                   下一页
                 </span>
               )}

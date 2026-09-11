@@ -29,7 +29,7 @@ const TagPageList: FC<{ params: { tag_label: string } }> = async({ params }) => 
               ))}
           </div>
       ) : (
-          <p className="text-gray-500 text-center py-10">No articles found with this tag.</p>
+          <p className="text-muted-foreground text-center py-10">No articles found with this tag.</p>
       )}
     </div>
   );

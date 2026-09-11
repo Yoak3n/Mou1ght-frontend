@@ -5,6 +5,7 @@ import { cn } from "@/lib/utils"
 import type { LinkSetting } from "@/types";
 import { Check, Rss, Search } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import ThemeToggle from "./theme-toggle";
 import { useEffect, useRef, useState } from "react";
 
 interface HeaderProps {
@@ -71,18 +72,18 @@ export default function Header({ links = [] }: HeaderProps) {
     return (
         <div className="group fixed top-0 left-0 w-full z-50 hover:translate-y-0 -translate-y-[calc(100%-10px)] transition-transform duration-300">
             <div className={cn(
-                "w-full flex items-center justify-between px-6 py-3 bg-white/70 backdrop-blur-md border-b border-gray-200 shadow-sm h-16",
+                "w-full flex items-center justify-between px-6 py-3 bg-background/70 backdrop-blur-md border-b border-border shadow-sm h-16",
             )} >
-                <div className="text-2xl font-bold text-gray-800 hover:text-gray-600 transition-colors cursor-pointer">
+                <div className="text-2xl font-bold text-foreground hover:text-foreground/70 transition-colors cursor-pointer">
                     <Link href="/">Mou1ght</Link>
                 </div>
                 <div className="flex items-center gap-6">
-                    <div className="hidden md:flex items-center gap-2 bg-gray-100 rounded-full px-3 py-1.5 focus-within:ring-2 focus-within:ring-amber-200 transition-all">
-                        <Search className="w-4 h-4 text-gray-500" />
+                    <div className="hidden md:flex items-center gap-2 bg-muted rounded-full px-3 py-1.5 focus-within:ring-2 focus-within:ring-amber-200 transition-all">
+                        <Search className="w-4 h-4 text-muted-foreground" />
                         <input
                             type="text"
                             placeholder="Search..."
-                            className="bg-transparent border-none outline-none text-sm w-32 focus:w-48 transition-all text-gray-700 placeholder:text-gray-400"
+                            className="bg-transparent border-none outline-none text-sm w-32 focus:w-48 transition-all text-foreground placeholder:text-muted-foreground"
                         />
                     </div>
                     <Button
@@ -92,11 +93,12 @@ export default function Header({ links = [] }: HeaderProps) {
                         onClick={copyRssUrl}
                         aria-label={copied ? "RSS 地址已复制" : "复制 RSS 订阅地址"}
                         title={copied ? "已复制" : "复制 RSS 订阅地址"}
-                        className="text-gray-700 hover:text-amber-600"
+                        className="text-muted-foreground hover:text-amber-500"
                     >
                         {copied ? <Check /> : <Rss />}
                         <span className="sr-only">{copied ? "已复制" : "复制 RSS 订阅地址"}</span>
                     </Button>
+                    <ThemeToggle />
                     <nav>
                         <ul className="flex items-center gap-6">
                             {displayLinks.map((link, index) => (
@@ -112,7 +114,7 @@ export default function Header({ links = [] }: HeaderProps) {
                                                             ? (link.href || `/tag/${encodeURIComponent(link.label || '')}`)
                                                             : (link.href || '#')
                                             }
-                                            className="relative text-gray-700 hover:text-amber-600 font-medium transition-colors py-1 block group/link"
+                                            className="relative text-foreground/80 hover:text-amber-500 font-medium transition-colors py-1 block group/link"
                                         >
                                             {
                                                 link.type === 'internal'

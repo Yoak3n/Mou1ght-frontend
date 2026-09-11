@@ -30,7 +30,7 @@ const CategoriesPage: FC = async () => {
     <div className="container mx-auto px-4 py-8">
       <div className="flex items-baseline justify-between gap-4 mb-8">
         <h1 className="text-2xl font-bold">分类</h1>
-        <div className="text-sm text-gray-500">
+        <div className="text-sm text-muted-foreground">
           {categories ? `${categories.length} 个分类组` : "加载失败"}
         </div>
       </div>
@@ -46,10 +46,10 @@ const CategoriesPage: FC = async () => {
             return (
               <Card
                 key={category.id}
-                className="w-full bg-white border-gray-200 transition-all duration-300 hover:shadow-lg hover:-translate-y-0.5"
+                className="w-full bg-card border-border transition-all duration-300 hover:shadow-lg hover:-translate-y-0.5"
               >
                 <CardHeader className="pb-3">
-                  <CardTitle className="text-lg font-bold text-gray-900">
+                  <CardTitle className="text-lg font-bold text-foreground">
                     <Link
                       href={`/category/${encodeLabel(category.label)}`}
                       className="hover:text-amber-600 transition-colors"
@@ -57,7 +57,7 @@ const CategoriesPage: FC = async () => {
                       {category.label}
                     </Link>
                   </CardTitle>
-                  <div className="text-xs text-gray-500">
+                  <div className="text-xs text-muted-foreground">
                     {descendantCount > 0 ? `包含 ${descendantCount} 个子分类` : "无子分类"}
                   </div>
                 </CardHeader>
@@ -75,7 +75,7 @@ const CategoriesPage: FC = async () => {
                       ) : null}
                     </div>
                   ) : (
-                    <div className="text-sm text-gray-500">
+                    <div className="text-sm text-muted-foreground">
                       <Link
                         href={`/category/${encodeLabel(category.label)}`}
                         className="hover:text-amber-600 transition-colors"
@@ -90,7 +90,7 @@ const CategoriesPage: FC = async () => {
           })}
         </div>
       ) : (
-        <div className="text-gray-500 text-center py-12">暂无分类</div>
+        <div className="text-muted-foreground text-center py-12">暂无分类</div>
       )}
     </div>
   );

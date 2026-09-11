@@ -54,10 +54,10 @@ const ArticleView: FC<{ params: { article_id: string } }> = async ({ params }) =
 
     if (!article) {
         return (
-            <div className="min-h-screen flex flex-col items-center justify-center bg-gray-50">
-                <div className="bg-white p-8 rounded-lg shadow-md text-center">
-                    <h1 className="text-2xl font-bold text-gray-800 mb-2">文章不存在</h1>
-                    <p className="text-gray-500">无法找到请求的文章，可能已被删除或移动。</p>
+            <div className="min-h-screen flex flex-col items-center justify-center bg-background">
+                <div className="bg-card p-8 rounded-lg shadow-md text-center">
+                    <h1 className="text-2xl font-bold text-foreground mb-2">文章不存在</h1>
+                    <p className="text-muted-foreground">无法找到请求的文章，可能已被删除或移动。</p>
                     <Link href="/" className="mt-4 inline-block text-blue-600 hover:underline">
                         返回首页
                     </Link>
@@ -67,7 +67,7 @@ const ArticleView: FC<{ params: { article_id: string } }> = async ({ params }) =
     }
 
     return (
-        <div className="min-h-screen bg-gray-50/50 pb-12">
+        <div className="min-h-screen bg-muted/40 pb-12">
             <ViewTracker id={article_id} type="article" />
             {/* Header / Banner Area (Optional, currently just spacing) */}
             {/* <div className="h-64 bg-linear-to-r from-blue-50 to-indigo-50 w-full absolute top-0 left-0 z-0"></div> */}
@@ -77,20 +77,20 @@ const ArticleView: FC<{ params: { article_id: string } }> = async ({ params }) =
                     {/* Main Content Column */}
                     <div className="lg:col-span-3 space-y-6">
                         {/* Article Header Card */}
-                        <div className="bg-white rounded-xl shadow-sm border border-gray-100 p-6 sm:p-10">
+                        <div className="bg-card rounded-xl shadow-sm border border-border p-6 sm:p-10">
                             <div className="space-y-4">
-                                <h1 className="text-3xl sm:text-4xl md:text-5xl font-extrabold tracking-tight text-gray-900 leading-tight">
+                                <h1 className="text-3xl sm:text-4xl md:text-5xl font-extrabold tracking-tight text-foreground leading-tight">
                                     {article.title}
                                 </h1>
 
-                                <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mt-4 pt-4 border-t border-gray-100">
-                                    <div className="flex flex-wrap items-center gap-4 text-gray-500 text-sm">
+                                <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mt-4 pt-4 border-t border-border">
+                                    <div className="flex flex-wrap items-center gap-4 text-muted-foreground text-sm">
                                         <div className="flex items-center gap-2">
-                                            <Avatar className="w-8 h-8 border border-gray-200">
+                                            <Avatar className="w-8 h-8 border border-border">
                                                 <AvatarImage src={article.author?.avatar} alt={article.author?.username} />
                                                 <AvatarFallback>{article.author?.username?.[0]?.toUpperCase()}</AvatarFallback>
                                             </Avatar>
-                                            <span className="font-medium text-gray-700">{article.author?.username}</span>
+                                            <span className="font-medium text-foreground/80">{article.author?.username}</span>
                                         </div>
                                         <Separator orientation="vertical" className="h-4 hidden sm:block" />
                                         <div className="flex items-center gap-1">
@@ -113,14 +113,14 @@ const ArticleView: FC<{ params: { article_id: string } }> = async ({ params }) =
                         </div>
 
                         {/* Article Content */}
-                        <div className="bg-white rounded-xl shadow-sm border border-gray-100 p-6 sm:p-10 min-h-[500px]">
+                        <div className="bg-card rounded-xl shadow-sm border border-border p-6 sm:p-10 min-h-[500px]">
                             <Markdown content={article.content} />
                         </div>
 
                         {/* Article Footer Actions (Removed as moved to header) */}
                         {/* 
-                        <div className="bg-white rounded-xl shadow-sm border border-gray-100 p-6 flex flex-col sm:flex-row justify-between items-center gap-4">
-                             <div className="text-sm text-gray-500">
+                        <div className="bg-card rounded-xl shadow-sm border border-border p-6 flex flex-col sm:flex-row justify-between items-center gap-4">
+                             <div className="text-sm text-muted-foreground">
                                 Last updated on {new Date(article.time.updated_at).toLocaleString()}
                             </div>
                         </div> 
@@ -131,7 +131,7 @@ const ArticleView: FC<{ params: { article_id: string } }> = async ({ params }) =
                     <div className="lg:col-span-1 space-y-6">
                         <div className="sticky top-24 space-y-6">
                             {/* Author Card */}
-                            <Card className="shadow-sm border-gray-100">
+                            <Card className="shadow-sm border-border">
                                 <CardHeader className="pb-2">
                                     <CardTitle className="text-lg">About Author</CardTitle>
                                 </CardHeader>
@@ -142,26 +142,26 @@ const ArticleView: FC<{ params: { article_id: string } }> = async ({ params }) =
                                             <AvatarFallback className="text-lg">{article.author?.username?.[0]?.toUpperCase()}</AvatarFallback>
                                         </Avatar>
                                         <div>
-                                            <div className="font-bold text-lg text-gray-900">{article.author?.username}</div>
-                                            <div className="text-xs text-gray-500">Author</div>
+                                            <div className="font-bold text-lg text-foreground">{article.author?.username}</div>
+                                            <div className="text-xs text-muted-foreground">Author</div>
                                         </div>
                                     </div>
                                     <Separator className="my-4" />
                                     <div className="flex justify-around text-center text-sm">
                                         <div>
-                                            <div className="font-bold text-gray-900">0</div>
-                                            <div className="text-gray-500 text-xs">Articles</div>
+                                            <div className="font-bold text-foreground">0</div>
+                                            <div className="text-muted-foreground text-xs">Articles</div>
                                         </div>
                                         <div>
-                                            <div className="font-bold text-gray-900">0</div>
-                                            <div className="text-gray-500 text-xs">Followers</div>
+                                            <div className="font-bold text-foreground">0</div>
+                                            <div className="text-muted-foreground text-xs">Followers</div>
                                         </div>
                                     </div>
                                 </CardContent>
                             </Card>
 
                             {/* TOC Card */}
-                            <Card className="shadow-sm border-gray-100">
+                            <Card className="shadow-sm border-border">
                                 <CardHeader>
                                     <CardTitle className="text-lg">Table of Contents</CardTitle>
                                 </CardHeader>
@@ -171,7 +171,7 @@ const ArticleView: FC<{ params: { article_id: string } }> = async ({ params }) =
                             </Card>
 
                             {/* Categories & Tags */}
-                            <Card className="shadow-sm border-gray-100">
+                            <Card className="shadow-sm border-border">
                                 <CardContent className="pt-1 space-y-4">
                                     <Categories categories={article.categories} />
                                     <Separator />

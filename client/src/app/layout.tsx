@@ -50,12 +50,18 @@ export default async function RootLayout({
           title={`${title} RSS`}
           href="/rss.xml"
         />
+        {/* 首帧前应用暗色模式，避免闪烁 */}
+        <script
+          dangerouslySetInnerHTML={{
+            __html: `(function(){try{var t=localStorage.getItem('mou1ght-theme');var d=t?t==='dark':window.matchMedia('(prefers-color-scheme: dark)').matches;if(d)document.documentElement.classList.add('dark')}catch(e){}})();`,
+          }}
+        />
       </head>
       <body
         className ={cn("antialiased ",geistSans.variable,geistMono.variable)}
       >
         <Header links={links} />
-        <main className="w-full">
+        <main className="w-full min-h-[calc(100vh-4rem)]">
           {children}
         </main>
         <Footer extra={setting?.bottom_extra} />

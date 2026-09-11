@@ -32,7 +32,7 @@ const CategoryDetail: FC<{ params: { category_label: string } }> = async ({ para
               ))}
           </div>
       ) : (
-          <p className="text-gray-500 text-center py-10">No articles found in this category.</p>
+          <p className="text-muted-foreground text-center py-10">No articles found in this category.</p>
       )}
     </div>
   );

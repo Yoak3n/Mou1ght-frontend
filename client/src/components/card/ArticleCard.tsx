@@ -8,10 +8,10 @@ import { CalendarIcon, UserIcon } from 'lucide-react';
 
 const ArticleCard: FC<{ article: ArticleInfo }> = ({ article }) => {
     return (
-        <Card className="w-full transition-all duration-300 hover:shadow-lg hover:-translate-y-1 border-gray-200 bg-white group">
+        <Card className="w-full transition-all duration-300 hover:shadow-lg hover:-translate-y-1 border-border bg-card group">
             <CardHeader className="pb-3">
                 <div className="flex justify-between items-start gap-4">
-                    <CardTitle className="text-xl md:text-2xl font-bold text-gray-800 group-hover:text-amber-600 transition-colors line-clamp-2">
+                    <CardTitle className="text-xl md:text-2xl font-bold text-foreground group-hover:text-amber-600 transition-colors line-clamp-2">
                         <Link href={"/article/" + article.id} className="block">
                             {article.title}
                         </Link>
@@ -19,7 +19,7 @@ const ArticleCard: FC<{ article: ArticleInfo }> = ({ article }) => {
                     {article.categories && article.categories.length > 0 && (
                         <div className="flex gap-2 shrink-0">
                             {article.categories.slice(0, 1).map(cat => (
-                                <span key={cat.id} className="px-2.5 py-0.5 rounded-full text-xs font-medium bg-amber-100 text-amber-800">
+                                <span key={cat.id} className="px-2.5 py-0.5 rounded-full text-xs font-medium bg-amber-100 text-amber-800 dark:bg-amber-500/20 dark:text-amber-300">
                                     {cat.label}
                                 </span>
                             ))}
@@ -28,12 +28,12 @@ const ArticleCard: FC<{ article: ArticleInfo }> = ({ article }) => {
                 </div>
             </CardHeader>
             <CardContent className="pb-3">
-                <p className="text-gray-600 line-clamp-3 leading-relaxed">
+                <p className="text-muted-foreground line-clamp-3 leading-relaxed">
                     {article.content}
                 </p>
             </CardContent>
             <CardFooter className="pt-3 border-t border-gray-100 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
-                <div className="flex items-center gap-1 text-gray-500 text-sm">
+                <div className="flex items-center gap-1 text-muted-foreground text-sm">
                     <div className="flex items-center gap-1 mr-4">
                         <UserIcon className="w-4 h-4" />
                         <span>{article.author?.username ?? 'Unknown'}</span>

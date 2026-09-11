@@ -124,7 +124,7 @@ export default function AttachmentGallery({
                             type="button"
                             onClick={() => openAt(idx)}
                             className={cn(
-                                'relative overflow-hidden rounded-md border border-gray-100 bg-gray-50',
+                                'relative overflow-hidden rounded-md border border-border bg-muted',
                                 'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-gray-300',
                                 isSingle ? 'w-full' : '',
                             )}
@@ -150,11 +150,11 @@ export default function AttachmentGallery({
                                         isSingle ? 'h-16' : 'aspect-square',
                                     )}
                                 >
-                                    <div className="flex items-center gap-2 text-gray-600">
+                                    <div className="flex items-center gap-2 text-muted-foreground">
                                         <FileText className="size-4" />
                                         <span className="text-xs line-clamp-2">{alt}</span>
                                     </div>
-                                    <span className="text-xs text-gray-500">点击查看</span>
+                                    <span className="text-xs text-muted-foreground">点击查看</span>
                                 </div>
                             )}
 
@@ -182,7 +182,7 @@ export default function AttachmentGallery({
                             variant="ghost"
                             size="icon"
                             onClick={close}
-                            className="absolute right-0 top-0 text-white hover:bg-white/10 hover:text-white"
+                            className="absolute right-0 top-0 text-white hover:bg-card/10 hover:text-white"
                             aria-label="关闭"
                         >
                             <X />
@@ -194,7 +194,7 @@ export default function AttachmentGallery({
                                     variant="ghost"
                                     size="icon"
                                     onClick={() => go(-1)}
-                                    className="absolute left-0 top-1/2 -translate-y-1/2 text-white hover:bg-white/10 hover:text-white"
+                                    className="absolute left-0 top-1/2 -translate-y-1/2 text-white hover:bg-card/10 hover:text-white"
                                     aria-label="上一张"
                                 >
                                     <ChevronLeft />
@@ -203,7 +203,7 @@ export default function AttachmentGallery({
                                     variant="ghost"
                                     size="icon"
                                     onClick={() => go(1)}
-                                    className="absolute right-0 top-1/2 -translate-y-1/2 text-white hover:bg-white/10 hover:text-white"
+                                    className="absolute right-0 top-1/2 -translate-y-1/2 text-white hover:bg-card/10 hover:text-white"
                                     aria-label="下一张"
                                 >
                                     <ChevronRight />
@@ -223,12 +223,12 @@ export default function AttachmentGallery({
                                     }}
                                 />
                             ) : (
-                                <div className="mx-auto max-w-xl rounded-lg bg-white p-5">
+                                <div className="mx-auto max-w-xl rounded-lg bg-card p-5">
                                     <div className="flex items-center gap-3">
-                                        <FileText className="size-5 text-gray-600" />
+                                        <FileText className="size-5 text-muted-foreground" />
                                         <div className="min-w-0">
-                                            <div className="font-medium text-gray-900 truncate">{currentName || '附件'}</div>
-                                            <div className="text-xs text-gray-500 truncate">{currentUrl || currentPath}</div>
+                                            <div className="font-medium text-foreground truncate">{currentName || '附件'}</div>
+                                            <div className="text-xs text-muted-foreground truncate">{currentUrl || currentPath}</div>
                                         </div>
                                     </div>
                                     <div className="mt-4 flex justify-end">

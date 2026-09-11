@@ -9,7 +9,7 @@ interface ViewButtonProps {
 
 const ViewButton: FC<ViewButtonProps> = ({ count, type }) => {
     return (
-        <Button  variant='ghost' className='hover:bg-white hover:text-accent-foreground dark:hover:bg-accent/50'>
+        <Button  variant='ghost' className='hover:bg-accent hover:text-accent-foreground'>
             <Eye />
             <span className="ml-2">{count}</span>
         </Button>
