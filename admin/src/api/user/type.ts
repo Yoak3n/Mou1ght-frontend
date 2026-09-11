@@ -8,3 +8,15 @@ export interface UserLoginRequest{
 export interface UserRegisterRequest extends UserLoginRequest{
     email:string
 }
+
+export interface UpdateUserProfileRequest{
+    username:string,
+    email:string,
+    phone:string,
+    avatar:string
+}
+
+export interface ChangePasswordRequest{
+    old_password:string,
+    new_password:string
+}

@@ -13,4 +13,7 @@ export interface PostListResponse {
     authors?: []
     tags?:[]
     categories? :[]
+    total?: number
+    page?: number
+    page_size?: number
 }

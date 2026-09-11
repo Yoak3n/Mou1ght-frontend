@@ -58,6 +58,23 @@ const routes: RouteRecordRaw[] = [
             auth: true
             
         },
+    },{
+        path: '/profile',
+        name: 'profile',
+        component: () => import("@/views/Profile.vue"),
+        meta: { 
+            title: '用户资料',
+            auth: true
+        },
+    },{
+        // 兜底路由：未匹配的路径显示 404，避免白屏
+        path: '/:pathMatch(.*)*',
+        name: 'notfound',
+        component: () => import("@/views/NotFound.vue"),
+        meta: {
+            title: '页面不存在',
+            auth: true
+        }
     }
     ]
   },{
