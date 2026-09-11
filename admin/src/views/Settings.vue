@@ -1,5 +1,11 @@
 <template>
-    <n-tabs v-model:active-key="activeTab" type="card">
+    <div class="settings-page">
+        <div class="settings-header">
+            <n-button type="primary" :loading="saving" @click="saveSetting">
+                保存设置
+            </n-button>
+        </div>
+        <n-tabs v-model:active-key="activeTab" type="card">
         <n-tab-pane tab="导航设置" name="navigation">
             <n-card title="导航条">
                 <n-form>
@@ -73,7 +79,8 @@
                 </n-form>
             </n-card>
         </n-tab-pane>
-    </n-tabs>
+        </n-tabs>
+    </div>
 </template>
 
 <script setup lang="ts">
@@ -119,6 +126,7 @@ const settingStore = useSettingStore();
 const blogSetting = reactive<BlogSetting>(initialBlogSetting);
 
 const activeTab = ref('navigation');
+const saving = ref(false);
 onMounted(async () => {
     await settingStore.fetchSetting();
     Object.assign(blogSetting, settingStore.setting);
@@ -127,6 +135,18 @@ onMounted(async () => {
 const updateSetting = async () => {
     blogSetting.nav_bar.website_information.keywords = blogSetting.nav_bar.website_information.keywords.filter(item => item != '')
     await settingStore.updateSetting(blogSetting);
+};
+
+const saveSetting = async () => {
+    saving.value = true;
+    try {
+        await updateSetting();
+        window.$message.success('设置已保存');
+    } catch {
+        window.$message.error('保存失败');
+    } finally {
+        saving.value = false;
+    }
 };
 
 const addKeyword = () => {
@@ -141,4 +161,13 @@ onBeforeUnmount(() => {
 });
 </script>
 
-<style scoped></style>
+<style scoped>
+.settings-page {
+    width: 100%;
+}
+.settings-header {
+    display: flex;
+    justify-content: flex-end;
+    margin-bottom: 12px;
+}
+</style>

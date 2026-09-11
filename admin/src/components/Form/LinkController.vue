@@ -1,145 +1,153 @@
 <template>
     <div class="link-controller">
-        <div ref="parent">
-            <div v-for="(element, index) in links" :index="index" :key="index" >
-                <n-space class="link-item">
-                    <n-input-group>
-                        <n-input v-model:value="element.label" placeholder="Link Label" :disabled="element.type === 'category' || element.type === 'tag'"/>
-                        <n-select v-model:value="element.href" placeholder="Internal Destination" v-if="element.type == 'internal'" :options="internalDestinationOptions" />
-                        <n-input v-model:value="element.href" placeholder="Link URL" v-if="element.type == 'external'" />
-                        <n-select v-model:value="element.type" placeholder="Link Type" :options="linkTypeOptions" />
-                    </n-input-group>
-                    <n-button-group>
-                        <n-button @click="removeLink(index)" v-if="links.length > 1 && index != 0">
-                            <n-icon>
-                                <Remove />
-                            </n-icon>
-                        </n-button>
-                        <n-button @click="addLink" v-if="index === links.length - 1" :round="index !== 0">
-                            <n-icon>
-                                <Add />
-                            </n-icon>
-                        </n-button>
-                    </n-button-group>
-                </n-space>
+        <div v-if="links.length === 0" class="link-empty">暂无导航链接，点击下方按钮添加</div>
+
+        <div v-for="(link, index) in links" :key="index" class="link-row">
+            <n-select
+                :value="link.type"
+                :options="linkTypeOptions"
+                size="small"
+                class="link-type"
+                @update:value="(t) => onChangeType(index, t as string)"
+            />
+            <div class="link-fields">
+                <!-- 站内页面：选择目标，自动填 label 与 href -->
+                <n-select
+                    v-if="link.type === 'internal'"
+                    :value="link.href"
+                    :options="internalDestinationOptions"
+                    size="small"
+                    placeholder="选择站内页面"
+                    @update:value="(h) => onSelectInternal(index, h as string)"
+                />
+                <!-- 分类 / 标签：选择后自动填 label 与 href -->
+                <CategorySelect
+                    v-else-if="link.type === 'category'"
+                    :value="link.label"
+                    size="small"
+                    placeholder="选择分类"
+                    @update:value="(v) => onSelectGroup(index, 'category', v as string)"
+                />
+                <TagSelect
+                    v-else-if="link.type === 'tag'"
+                    :value="link.label"
+                    size="small"
+                    placeholder="选择标签"
+                    @update:value="(v) => onSelectGroup(index, 'tag', v as string)"
+                />
+                <!-- 外链：自定义名称与 URL -->
+                <template v-else>
+                    <n-input v-model:value="link.label" size="small" placeholder="链接名称" />
+                    <n-input v-model:value="link.href" size="small" placeholder="https://..." />
+                </template>
+            </div>
+            <div class="link-actions">
+                <n-button size="tiny" quaternary :disabled="index === 0" @click="move(index, -1)">上移</n-button>
+                <n-button size="tiny" quaternary :disabled="index === links.length - 1" @click="move(index, 1)">下移</n-button>
+                <n-button size="tiny" quaternary type="error" @click="removeLink(index)">删除</n-button>
             </div>
         </div>
 
+        <div class="link-add">
+            <span class="link-add-label">添加：</span>
+            <n-button size="small" @click="quickAdd('internal')">站内页面</n-button>
+            <n-button size="small" @click="quickAdd('category')">分类</n-button>
+            <n-button size="small" @click="quickAdd('tag')">标签</n-button>
+            <n-button size="small" @click="quickAdd('external')">外链</n-button>
+        </div>
     </div>
-    <n-modal v-model:show="visible" title="Add Link" preset="card" :style="{ width: '800px' }">
-        <n-form :model="linkForm">
-            <n-form-item label="Label" >
-                <n-input v-model:value="linkForm.label" placeholder="Label" v-if="linkForm.type == 'external' || linkForm.type == 'internal'" />
-                <CategorySelect v-model:value="linkForm.label" placeholder="Category" v-if="linkForm.type == 'category'" />
-                <TagSelect v-model:value="linkForm.label" placeholder="Tag" v-if="linkForm.type == 'tag'"  />   
-            </n-form-item>
-            <n-form-item label="Destination" v-if="linkForm.type == 'internal'">
-                <n-select v-model:value="linkForm.href" placeholder="Internal Destination" :options="internalDestinationOptions" />
-            </n-form-item>
-            <n-form-item label="URL" v-if="linkForm.type == 'external'">
-                <n-input v-model:value="linkForm.href" placeholder="URL" />
-            </n-form-item>
-            <n-form-item label="Type">
-                <n-select v-model:value="linkForm.type" placeholder="Type" :options="linkTypeOptions"  @update:value="onTypeChange"/>
-            </n-form-item>
-        </n-form>
-        <template #footer>
-            <n-space justify="end">
-                <n-button  @click="visible = false">Cancel</n-button>
-                <n-button  @click="submitLinkToModel">Add</n-button>
-            </n-space>
-        </template>
-    </n-modal>
 </template>
 
 <script setup lang="ts">
-import { ref } from 'vue';
-import { useDragAndDrop } from 'fluid-dnd/vue';
-import { NInput, NInputGroup, NButtonGroup, NButton, NModal, NForm, NFormItem, NSelect, NIcon, NSpace } from 'naive-ui';
-import { Add, Remove } from '@vicons/ionicons5';
-
-import TagSelect from '@/components/Select/TagSelect/index.vue'
-import CategorySelect from '@/components/Select/CategorySelect/index.vue'
+import { NInput, NButton, NSelect } from 'naive-ui';
+import TagSelect from '@/components/Select/TagSelect/index.vue';
+import CategorySelect from '@/components/Select/CategorySelect/index.vue';
 import type { LinkSetting } from '@/types';
 
-const visible = ref(false)
-const linkForm = ref<LinkSetting>({
-    label: '',
-    href: '',
-    type: 'internal'
-})
-const linkTypeOptions = [
-    {
-        label: 'Internal',
-        value: 'internal'
-    },
-    {
-        label: 'Category',
-        value: 'category'
-    },{
-        label: 'Tag',
-        value: 'tag'
-    },
-    {
-        label: 'External',
-        value: 'external'
-    }
-]
-
-const internalLinkOption = [
-    {
-        label: 'Home',
-        value: '/'
-    },
-    {
-        label: 'Board',
-        value: '/board'
-    },
-    {
-        label: 'Sharings',
-        value: '/sharings'
-    },
-    {
-        label: 'Categories',
-        value: '/categories'
-    },
-    {
-        label: 'Tags',
-        value: '/tags'
-    },
-]
-
-const internalDestinationOptions = internalLinkOption
-
-const onTypeChange = () => {
-    linkForm.value.href = ''
-    linkForm.value.label = ''
-}
-
-const links = defineModel('links', {
+const links = defineModel<LinkSetting[]>('links', {
     type: Array as () => Array<LinkSetting>,
-    required: true
+    required: true,
 });
 
-const addLink = () => visible.value = true
+const linkTypeOptions = [
+    { label: '站内页面', value: 'internal' },
+    { label: '分类', value: 'category' },
+    { label: '标签', value: 'tag' },
+    { label: '外链', value: 'external' },
+];
+
+const internalDestinationOptions = [
+    { label: '主页', href: '/' },
+    { label: '留言板', href: '/board' },
+    { label: '说说', href: '/sharings' },
+    { label: '分类', href: '/categories' },
+    { label: '标签', href: '/tags' },
+];
+
+const blankLink = (type: string): LinkSetting => ({ type, label: '', href: '' });
+
+// 以不可变方式更新数组，保证 defineModel 与父组件响应式稳定
+function commit(updater: (list: LinkSetting[]) => LinkSetting[]) {
+    links.value = updater([...links.value]);
+}
+
+const onChangeType = (index: number, type: string) => {
+    commit((list) => {
+        const link = blankLink(type);
+        // 站内页面直接给第一个预设，减少操作
+        if (type === 'internal') {
+            const preset = internalDestinationOptions[0]!;
+            link.label = preset.label;
+            link.href = preset.href;
+        }
+        list[index] = link;
+        return list;
+    });
+};
+
+const onSelectInternal = (index: number, href: string) => {
+    commit((list) => {
+        const preset = internalDestinationOptions.find((o) => o.href === href);
+        list[index] = { type: 'internal', label: preset?.label ?? '', href };
+        return list;
+    });
+};
+
+const onSelectGroup = (index: number, type: 'category' | 'tag', label: string) => {
+    commit((list) => {
+        list[index] = { type, label, href: `/${type}/${encodeURIComponent(label)}` };
+        return list;
+    });
+};
+
+const quickAdd = (type: string) => {
+    commit((list) => {
+        const link = blankLink(type);
+        if (type === 'internal') {
+            const preset = internalDestinationOptions[0]!;
+            link.label = preset.label;
+            link.href = preset.href;
+        }
+        list.push(link);
+        return list;
+    });
+};
 
 const removeLink = (index: number) => {
-    links.value.splice(index, 1)
-}
+    commit((list) => list.filter((_, i) => i !== index));
+};
 
-const submitLinkToModel = () => {
-    links.value.push({ ...linkForm.value })
-    visible.value = false
-    linkForm.value = {
-        label: '',
-        href: '',
-        type: 'internal'
-    }
-}
-
-const [parent] = useDragAndDrop(links)
-
-defineExpose({ parent })
+const move = (index: number, delta: -1 | 1) => {
+    commit((list) => {
+        const target = index + delta;
+        if (target < 0 || target >= list.length) return list;
+        const current = list[index]!;
+        const next = list[target]!;
+        list[index] = next;
+        list[target] = current;
+        return list;
+    });
+};
 </script>
 
 <style scoped>
@@ -147,12 +155,55 @@ defineExpose({ parent })
     width: 100%;
 }
 
-.link-item {
+.link-empty {
+    color: #999;
+    font-size: 13px;
+    padding: 12px 0;
+}
+
+.link-row {
+    display: flex;
+    align-items: center;
+    gap: 8px;
     margin-bottom: 8px;
     padding: 8px;
     background-color: #fff;
     border: 1px solid #eee;
     border-radius: 4px;
-    cursor: move;
+}
+
+.link-type {
+    width: 120px;
+    flex-shrink: 0;
+}
+
+.link-fields {
+    flex: 1;
+    display: flex;
+    gap: 8px;
+    min-width: 0;
+}
+
+.link-fields > :deep(.n-select),
+.link-fields > :deep(.n-input) {
+    flex: 1;
+}
+
+.link-actions {
+    flex-shrink: 0;
+    display: flex;
+    gap: 0;
+}
+
+.link-add {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin-top: 8px;
+}
+
+.link-add-label {
+    color: #666;
+    font-size: 13px;
 }
 </style>
