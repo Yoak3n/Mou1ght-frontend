@@ -1,6 +1,6 @@
 'use server'
 
-import { unstable_cache } from 'next/cache';
+import { revalidatePath, revalidateTag, unstable_cache } from 'next/cache';
 import { Response } from "@/types";
 import { CreateMessageRequest, UpdateMessageRequest, UpdateMessagePositionRequest, MessageInfo, PostListResponse } from "@/types/post";
 
@@ -10,6 +10,13 @@ const BASE_URL = (() => {
     const trimmed = base.replace(/\/+$/, "");
     return trimmed.endsWith("/api/v1") ? trimmed : `${trimmed}/api/v1`;
 })();
+
+// 留言变更后主动失效缓存：让操作者的 router.refresh() 确定性拿到新数据，
+// 不依赖后端 webhook 的时序（后端 webhook 仍负责其他访问者的缓存更新）。
+function invalidateMessageCache() {
+    revalidateTag('content', 'max');
+    revalidatePath('/board', 'page');
+}
 
 export async function createMessage(data: CreateMessageRequest): Promise<{ ok: boolean; message?: string }> {
     try {
@@ -34,7 +41,11 @@ export async function createMessage(data: CreateMessageRequest): Promise<{ ok: b
             return { ok: false, message: json?.message || '发送失败' };
         }
 
-        return { ok: json?.code === 0, message: json?.code === 0 ? undefined : json?.message };
+        if (json?.code !== 0) {
+            return { ok: false, message: json?.message || '发送失败' };
+        }
+        invalidateMessageCache();
+        return { ok: true };
     } catch (error) {
         console.error("Fetch Error:", error);
         return { ok: false, message: '网络错误，请稍后重试' };
@@ -58,7 +69,9 @@ export async function updateMessage(data: UpdateMessageRequest): Promise<boolean
         }
 
         const json: Response<null> = await res.json();
-        return json.code === 0;
+        if (json.code !== 0) return false;
+        invalidateMessageCache();
+        return true;
     } catch (error) {
         console.error("Fetch Error:", error);
         return false;
@@ -82,7 +95,9 @@ export async function deleteOwnMessage(data: { id: string; visitor_token: string
         }
 
         const json: Response<null> = await res.json();
-        return json.code === 0;
+        if (json.code !== 0) return false;
+        invalidateMessageCache();
+        return true;
     } catch (error) {
         console.error("Fetch Error:", error);
         return false;
