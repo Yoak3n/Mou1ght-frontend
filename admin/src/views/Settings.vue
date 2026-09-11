@@ -21,12 +21,20 @@
                             v-model:value="blogSetting.nav_bar.website_information.title" />
                     </n-form-item>
                     <n-form-item label="网站图标">
-                        <n-input placeholder="请输入网站图标地址..."
-                            v-model:value="blogSetting.nav_bar.website_information.icon" />
+                        <div class="icon-field">
+                            <n-input placeholder="支持 /upload/xxx 或完整 URL，留空使用默认 favicon"
+                                v-model:value="blogSetting.nav_bar.website_information.icon" />
+                            <img v-if="iconPreview && !iconPreviewFailed" :src="iconPreview" class="icon-preview"
+                                alt="图标预览" @error="iconPreviewFailed = true" />
+                        </div>
                     </n-form-item>
                     <n-form-item label="网站Logo">
-                        <n-input placeholder="请输入网站Logo地址..."
-                            v-model:value="blogSetting.nav_bar.website_information.logo" />
+                        <div class="icon-field">
+                            <n-input placeholder="支持 /upload/xxx 或完整 URL，留空显示站点名称"
+                                v-model:value="blogSetting.nav_bar.website_information.logo" />
+                            <img v-if="logoPreview && !logoPreviewFailed" :src="logoPreview" class="logo-preview"
+                                alt="Logo 预览" @error="logoPreviewFailed = true" />
+                        </div>
                     </n-form-item>
 
                     <n-form-item label="网站关键词">
@@ -84,7 +92,7 @@
 </template>
 
 <script setup lang="ts">
-import { onBeforeUnmount, onMounted, reactive, ref } from 'vue';
+import { computed, onBeforeUnmount, onMounted, reactive, ref, watch } from 'vue';
 import {
     NTabs,
     NTabPane,
@@ -124,6 +132,20 @@ const initialBlogSetting: BlogSetting = {
 };
 const settingStore = useSettingStore();
 const blogSetting = reactive<BlogSetting>(initialBlogSetting);
+
+// 图标 / Logo 预览：相对路径补前导 /，加载失败则隐藏
+function toPreviewUrl(value: string): string {
+    const v = (value || '').trim();
+    if (!v) return '';
+    if (/^(https?:)?\/\//.test(v) || v.startsWith('/') || v.startsWith('data:')) return v;
+    return `/${v}`;
+}
+const iconPreview = computed(() => toPreviewUrl(blogSetting.nav_bar.website_information.icon));
+const logoPreview = computed(() => toPreviewUrl(blogSetting.nav_bar.website_information.logo));
+const iconPreviewFailed = ref(false);
+const logoPreviewFailed = ref(false);
+watch(iconPreview, () => { iconPreviewFailed.value = false; });
+watch(logoPreview, () => { logoPreviewFailed.value = false; });
 
 const activeTab = ref('navigation');
 const saving = ref(false);
@@ -169,5 +191,27 @@ onBeforeUnmount(() => {
     display: flex;
     justify-content: flex-end;
     margin-bottom: 12px;
+}
+.icon-field {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    width: 100%;
+}
+.icon-preview {
+    width: 28px;
+    height: 28px;
+    object-fit: contain;
+    border: 1px solid #eee;
+    border-radius: 4px;
+    flex-shrink: 0;
+}
+.logo-preview {
+    height: 32px;
+    max-width: 140px;
+    object-fit: contain;
+    border: 1px solid #eee;
+    border-radius: 4px;
+    flex-shrink: 0;
 }
 </style>

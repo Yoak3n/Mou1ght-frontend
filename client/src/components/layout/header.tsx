@@ -10,6 +10,7 @@ import { useEffect, useRef, useState } from "react";
 
 interface HeaderProps {
     links?: LinkSetting[];
+    logo?: string;
 }
 const internalLinkNameMap: Record<string, string> = {
     home: 'Home',
@@ -22,7 +23,7 @@ const internalLinkHrefMap: Record<string, string> = {
     sharings: '/sharings',
 }
 
-export default function Header({ links = [] }: HeaderProps) {
+export default function Header({ links = [], logo = "" }: HeaderProps) {
     const defaultLinks = [
         { label: "Home", href: "/", type: 'internal' },
         { label: "Board", href: "/board", type: 'internal' },
@@ -75,7 +76,14 @@ export default function Header({ links = [] }: HeaderProps) {
                 "w-full flex items-center justify-between px-6 py-3 bg-background/70 backdrop-blur-md border-b border-border shadow-sm h-16",
             )} >
                 <div className="text-2xl font-bold text-foreground hover:text-foreground/70 transition-colors cursor-pointer">
-                    <Link href="/">Mou1ght</Link>
+                    <Link href="/" className="flex items-center gap-2">
+                        {logo ? (
+                            // eslint-disable-next-line @next/next/no-img-element
+                            <img src={logo} alt="logo" className="h-8 w-auto max-w-[180px] object-contain" />
+                        ) : (
+                            'Mou1ght'
+                        )}
+                    </Link>
                 </div>
                 <div className="flex items-center gap-6">
                     <div className="hidden md:flex items-center gap-2 bg-muted rounded-full px-3 py-1.5 focus-within:ring-2 focus-within:ring-amber-200 transition-all">
