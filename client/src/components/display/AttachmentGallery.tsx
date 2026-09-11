@@ -24,12 +24,17 @@ function getAttachmentKey(att: Attachment, index: number): string {
 function resolveAttachmentUrl(path: string): string {
     const raw = (path || '').trim();
     if (!raw) return '';
+    // 绝对 URL / data / blob 原样返回
     if (/^(https?:)?\/\//.test(raw) || raw.startsWith('data:') || raw.startsWith('blob:')) return raw;
 
-    const rawBase = ((process.env.NEXT_PUBLIC_BASE_URL || '').trim() || 'http://localhost:10420');
-    const base = rawBase.replace(/\/+$/, '').replace(/\/api\/v1$/, '');
-    if (raw.startsWith('/')) return `${base}${raw}`;
-    return `${base}/${raw}`;
+    // 其余一律按同源相对路径处理：生产环境 nginx 已将 /upload/ 转发到后端；
+    // 本地开发需要预览附件时，可在构建时设置 NEXT_PUBLIC_BASE_URL=http://localhost:10420
+    const rawBase = (process.env.NEXT_PUBLIC_BASE_URL || '').trim();
+    if (rawBase) {
+        const base = rawBase.replace(/\/+$/, '').replace(/\/api\/v1$/, '');
+        return raw.startsWith('/') ? `${base}${raw}` : `${base}/${raw}`;
+    }
+    return raw.startsWith('/') ? raw : `/${raw}`;
 }
 
 function getGridColsClass(count: number): string {
