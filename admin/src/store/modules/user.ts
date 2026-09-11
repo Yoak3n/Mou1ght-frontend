@@ -7,7 +7,6 @@ import { defineStore } from "pinia";
 const useUserStore = defineStore("user",{
     state:()=>({
         token: getToken(),
-        auth: false,
         info: null as UserInfo | null,
     }),
     actions: {
@@ -18,7 +17,6 @@ const useUserStore = defineStore("user",{
                 return Promise.reject(new Error(res.message));
             }else{
                 this.token = res.data.token;
-                this.auth = true;
                 setToken(res.data.token);
                 return 'ok'
             }
@@ -30,7 +28,6 @@ const useUserStore = defineStore("user",{
                 return Promise.reject(new Error(res.message));
             }else{
                 this.token = res.data.token;
-                this.auth = true;
                 setToken(res.data.token);
                 return 'ok'
             }
@@ -40,7 +37,6 @@ const useUserStore = defineStore("user",{
             const res = await userInfo();
             if(res.code !== 0){
                 this.token = ''
-                this.auth = false
                 setToken('')
                 return Promise.reject(new Error(res.message));
             }else{
@@ -56,7 +52,6 @@ const useUserStore = defineStore("user",{
                 return Promise.reject(new Error(res.message));
             }else{
                 this.token = '';
-                this.auth = false;
                 setToken('');
                 return 'ok'
             }
@@ -64,12 +59,7 @@ const useUserStore = defineStore("user",{
     },
     getters: {
         isAuth():boolean{
-            if (this.token == ''){
-                this.auth = false;
-            }else{
-                this.auth = true;
-            }
-            return this.auth ;
+            return this.token !== ''
         }
     }
 })

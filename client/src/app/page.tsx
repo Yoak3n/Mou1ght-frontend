@@ -1,12 +1,21 @@
+import Link from "next/link";
 import ArticleCard from "@/components/card/ArticleCard";
 import ScreenPicture from "@/components/display/screen";
-import { getArticleList } from "@/lib/api";
+import { getArticleListPage } from "@/lib/api";
 
-// ISR：首页缓存 5 分钟，后台发布内容时由后端 webhook 按需失效。
+// ISR：首页按页缓存 5 分钟，后台发布内容时由后端 webhook 按需失效。
 export const revalidate = 300;
 
-export default async function Home() {
-  const articles = await getArticleList()
+const PAGE_SIZE = 5;
+
+export default async function Home({ searchParams }: { searchParams: Promise<{ page?: string }> }) {
+  const { page: pageParam } = await searchParams;
+  const page = Math.max(1, parseInt(pageParam || "1", 10) || 1);
+  const data = await getArticleListPage(page, PAGE_SIZE);
+  const articles = data?.articles ?? null;
+  const total = data?.total ?? 0;
+  const totalPages = Math.max(1, Math.ceil(total / PAGE_SIZE));
+
   return (
     <div className="w-full flex flex-col bg-gray-50/50 min-h-screen">
       <ScreenPicture />
@@ -19,7 +28,7 @@ export default async function Home() {
           <div className="article-list grid gap-6 sm:grid-cols-1 md:grid-cols-1">
           {articles &&
             articles.length > 0 ?
-            articles.slice(0, 5).map((article) => (
+            articles.map((article) => (
               <ArticleCard key={article.id} article={article} />
             ))
             : (
@@ -29,6 +38,38 @@ export default async function Home() {
             )
           }
           </div>
+
+          {totalPages > 1 && (
+            <div className="flex items-center justify-center gap-4 py-6 text-sm">
+              {page > 1 ? (
+                <Link
+                  href={`/?page=${page - 1}`}
+                  className="px-4 py-2 rounded-lg border border-gray-200 bg-white text-gray-700 hover:bg-gray-50"
+                >
+                  上一页
+                </Link>
+              ) : (
+                <span className="px-4 py-2 rounded-lg border border-gray-200 bg-gray-50 text-gray-400 cursor-not-allowed">
+                  上一页
+                </span>
+              )}
+              <span className="text-gray-500">
+                第 {page} / {totalPages} 页
+              </span>
+              {page < totalPages ? (
+                <Link
+                  href={`/?page=${page + 1}`}
+                  className="px-4 py-2 rounded-lg border border-gray-200 bg-white text-gray-700 hover:bg-gray-50"
+                >
+                  下一页
+                </Link>
+              ) : (
+                <span className="px-4 py-2 rounded-lg border border-gray-200 bg-gray-50 text-gray-400 cursor-not-allowed">
+                  下一页
+                </span>
+              )}
+            </div>
+          )}
         </div>
       </div>
     </div>

@@ -36,7 +36,7 @@ const ArticleCard: FC<{ article: ArticleInfo }> = ({ article }) => {
                 <div className="flex items-center gap-1 text-gray-500 text-sm">
                     <div className="flex items-center gap-1 mr-4">
                         <UserIcon className="w-4 h-4" />
-                        <span>{article.author.username}</span>
+                        <span>{article.author?.username ?? 'Unknown'}</span>
                     </div>
                     <div className="flex items-center gap-1">
                         <CalendarIcon className="w-4 h-4" />

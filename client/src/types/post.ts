@@ -10,7 +10,7 @@ export interface CreateSharingRequest {
 export interface CreateMessageRequest {
     content: string;
     position: MessagePosition;
-    author_ip?: string;
+    visitor_token?: string;
     board_answer?: string;
 }
 
@@ -18,13 +18,13 @@ export interface UpdateMessageRequest {
     id: string;
     content: string;
     position: MessagePosition;
-    author_ip?: string;
+    visitor_token?: string;
 }
 
 export interface UpdateMessagePositionRequest {
     id: string;
     position: MessagePosition;
-    author_ip?: string;
+    visitor_token?: string;
 }
 
 export interface CategoryWithArticles {
@@ -44,6 +44,9 @@ export interface PostListResponse {
     authors?: []
     tags?: TagWithArticles[]
     categories? : CategoryWithArticles[]
+    total?: number
+    page?: number
+    page_size?: number
 }
 
 

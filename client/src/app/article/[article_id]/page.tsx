@@ -87,10 +87,10 @@ const ArticleView: FC<{ params: { article_id: string } }> = async ({ params }) =
                                     <div className="flex flex-wrap items-center gap-4 text-gray-500 text-sm">
                                         <div className="flex items-center gap-2">
                                             <Avatar className="w-8 h-8 border border-gray-200">
-                                                <AvatarImage src={article.author.avatar} alt={article.author.username} />
-                                                <AvatarFallback>{article.author.username[0].toUpperCase()}</AvatarFallback>
+                                                <AvatarImage src={article.author?.avatar} alt={article.author?.username} />
+                                                <AvatarFallback>{article.author?.username?.[0]?.toUpperCase()}</AvatarFallback>
                                             </Avatar>
-                                            <span className="font-medium text-gray-700">{article.author.username}</span>
+                                            <span className="font-medium text-gray-700">{article.author?.username}</span>
                                         </div>
                                         <Separator orientation="vertical" className="h-4 hidden sm:block" />
                                         <div className="flex items-center gap-1">
@@ -138,11 +138,11 @@ const ArticleView: FC<{ params: { article_id: string } }> = async ({ params }) =
                                 <CardContent>
                                     <div className="flex items-center gap-4 mb-4">
                                         <Avatar className="w-16 h-16 border-2 border-white shadow-sm">
-                                            <AvatarImage src={article.author.avatar} alt={article.author.username} />
-                                            <AvatarFallback className="text-lg">{article.author.username[0].toUpperCase()}</AvatarFallback>
+                                            <AvatarImage src={article.author?.avatar} alt={article.author?.username} />
+                                            <AvatarFallback className="text-lg">{article.author?.username?.[0]?.toUpperCase()}</AvatarFallback>
                                         </Avatar>
                                         <div>
-                                            <div className="font-bold text-lg text-gray-900">{article.author.username}</div>
+                                            <div className="font-bold text-lg text-gray-900">{article.author?.username}</div>
                                             <div className="text-xs text-gray-500">Author</div>
                                         </div>
                                     </div>

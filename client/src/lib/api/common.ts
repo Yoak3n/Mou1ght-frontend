@@ -81,6 +81,53 @@ export async function getArticleList(): Promise<ArticleInfo[] | null> {
     return getArticleListCached();
 }
 
+const getArticleListPageCached = unstable_cache(
+    async (page: number, pageSize: number): Promise<{ articles: ArticleInfo[]; total: number } | null> => {
+        try {
+            const data = {
+                filter: {
+                    type: 'single',
+                    sort: 'desc',
+                    page,
+                    page_size: pageSize,
+                },
+                data: {
+                    keyword: []
+                }
+            }
+            const res = await fetch(`${BASE_URL}/article/list`, {
+                method: 'POST',
+                body: JSON.stringify(data),
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                cache: 'no-store',
+            });
+            if (res.status !== 200) {
+                console.error(`Failed to fetch article list: ${res.status} ${res.statusText}`);
+                return null;
+            }
+
+            const json: Response<PostListResponse> = await res.json();
+            if (json.code !== 0) {
+                console.error("API Error:", json.message);
+                return null;
+            }
+
+            return { articles: json.data.articles || [], total: json.data.total || 0 };
+        } catch (error) {
+            console.error("Fetch Error:", error);
+            return null;
+        }
+    },
+    ['article-list-page'],
+    { tags: ['content'], revalidate: 300 }
+);
+
+export async function getArticleListPage(page: number, pageSize: number): Promise<{ articles: ArticleInfo[]; total: number } | null> {
+    return getArticleListPageCached(page, pageSize);
+}
+
 const getAllCategoriesCached = unstable_cache(async (): Promise<CategoryGroup[] | null> => {
     try {
         const res = await fetch(`${BASE_URL}/category/all`, { cache: 'no-store' });

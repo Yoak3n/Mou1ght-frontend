@@ -28,7 +28,6 @@ request.interceptors.response.use((response)=>{
             message = "TOKEN过期"
             const userStore = useUserStore()
             userStore.token = ''
-            userStore.auth = false
             userStore.info = null
             setToken('')
             router.push('/entry')

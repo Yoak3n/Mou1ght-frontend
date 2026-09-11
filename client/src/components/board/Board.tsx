@@ -119,7 +119,7 @@ export default function Board({ initialMessages, boardSettings }: BoardProps) {
         const success = await createMessage({
             content: newMessage,
             position: toServerPosition(tempPosition),
-            author_ip: ensuredVisitorToken,
+            visitor_token: ensuredVisitorToken,
             ...(boardSettings?.question?.trim() ? { board_answer: questionAnswer.trim() } : {})
         });
 
@@ -222,7 +222,7 @@ export default function Board({ initialMessages, boardSettings }: BoardProps) {
                     updateMessagePosition({
                         id: msg.id,
                         position: toServerPosition(msg.position),
-                        author_ip: token
+                        visitor_token: token
                     });
                 }
                 setDraggingMessageId(null);

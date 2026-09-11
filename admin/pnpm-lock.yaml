@@ -14,6 +14,9 @@ importers:
       '@bytemd/vue-next':
         specifier: ^1.22.0
         version: 1.22.0(vue@3.5.34(typescript@5.9.3))
+      '@vicons/ionicons5':
+        specifier: ^0.13.0
+        version: 0.13.0
       axios:
         specifier: ^1.16.0
         version: 1.16.0(debug@4.4.3)
@@ -32,6 +35,9 @@ importers:
       mitt:
         specifier: ^3.0.1
         version: 3.0.1
+      naive-ui:
+        specifier: ^2.44.1
+        version: 2.44.1(vue@3.5.34(typescript@5.9.3))
       pinia:
         specifier: ^3.0.4
         version: 3.0.4(typescript@5.9.3)(vue@3.5.34(typescript@5.9.3))
@@ -41,31 +47,25 @@ importers:
       vue-echarts:
         specifier: ^8.0.1
         version: 8.0.1(echarts@6.0.0)(vue@3.5.34(typescript@5.9.3))
+      vue-router:
+        specifier: ^4.6.4
+        version: 4.6.4(vue@3.5.34(typescript@5.9.3))
     devDependencies:
       '@types/node':
         specifier: ^24.12.3
         version: 24.12.3
-      '@vicons/ionicons5':
-        specifier: ^0.13.0
-        version: 0.13.0
       '@vitejs/plugin-vue':
         specifier: ^6.0.6
         version: 6.0.6(rolldown-vite@7.2.5(@emnapi/core@1.7.1)(@emnapi/runtime@1.7.1)(@types/node@24.12.3))(vue@3.5.34(typescript@5.9.3))
       '@vue/tsconfig':
         specifier: ^0.8.1
         version: 0.8.1(typescript@5.9.3)(vue@3.5.34(typescript@5.9.3))
-      naive-ui:
-        specifier: ^2.44.1
-        version: 2.44.1(vue@3.5.34(typescript@5.9.3))
       typescript:
         specifier: ~5.9.3
         version: 5.9.3
       vite:
         specifier: npm:rolldown-vite@7.2.5
         version: rolldown-vite@7.2.5(@emnapi/core@1.7.1)(@emnapi/runtime@1.7.1)(@types/node@24.12.3)
-      vue-router:
-        specifier: ^4.6.4
-        version: 4.6.4(vue@3.5.34(typescript@5.9.3))
       vue-tsc:
         specifier: ^3.2.8
         version: 3.2.8(typescript@5.9.3)
