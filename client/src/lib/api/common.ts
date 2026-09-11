@@ -113,13 +113,21 @@ export async function getAllTags(): Promise<Sign[] | null> {
     return getAllTagsCached();
 }
 
-export async function viewPost(id: string, type: 'article' | 'sharing' | 'message'): Promise<boolean> {
+export async function viewPost(id: string, type: 'article' | 'sharing' | 'message', token?: string): Promise<boolean> {
     try {
+        const headers: HeadersInit = {
+            // 标记流量来自前台代理：后端据此要求浏览器流量携带游客 token
+            'x-proxied-by': 'client',
+        };
+        if (token) {
+            headers['Authorization'] = `Bearer ${token}`;
+        }
         const url = type === 'message'
             ? `${BASE_URL}/message/view/${id}`
             : `${BASE_URL}/${type}/view/${id}?type=${type}`;
         const res = await fetch(url, {
             method: 'POST',
+            headers,
             cache: "no-store",
         });
         if (!res.ok) return false;
@@ -131,13 +139,20 @@ export async function viewPost(id: string, type: 'article' | 'sharing' | 'messag
     }
 }
 
-export async function likePost(id: string, type: 'article' | 'sharing' | 'message'): Promise<boolean> {
+export async function likePost(id: string, type: 'article' | 'sharing' | 'message', token?: string): Promise<boolean> {
     try {
+        const headers: HeadersInit = {
+            'x-proxied-by': 'client',
+        };
+        if (token) {
+            headers['Authorization'] = `Bearer ${token}`;
+        }
         const url = type === 'message'
             ? `${BASE_URL}/message/like/${id}`
             : `${BASE_URL}/${type}/like/${id}?type=${type}`;
         const res = await fetch(url, {
             method: 'POST',
+            headers,
             cache: "no-store",
         });
         if (!res.ok) return false;

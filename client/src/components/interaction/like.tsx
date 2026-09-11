@@ -3,6 +3,7 @@ import { useState, FC } from 'react';
 import { Heart } from 'lucide-react';
 import { Button } from '../ui/button';
 import { likePost } from '@/lib/api/common';
+import { getVisitorToken } from '@/lib/visitor';
 
 interface LikeButtonProps {
   id: string;
@@ -19,7 +20,8 @@ const LikeButton: FC<LikeButtonProps> = ({ id, count, type }) => {
     const prevCount = currentCount;
     setIsLiked(!isLiked);
     setCurrentCount(isLiked ? currentCount - 1 : currentCount + 1);
-    const ok = await likePost(id, type);
+    const token = await getVisitorToken();
+    const ok = await likePost(id, type, token);
     if (!ok) {
       setIsLiked(prevLiked);
       setCurrentCount(prevCount);
