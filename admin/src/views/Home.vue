@@ -4,7 +4,7 @@ import { computed } from 'vue'
 import { NButton, NCard, NGi, NGrid, NSpace } from 'naive-ui'
 
 import { getTimeDutation } from '@/utils/time'
-import AttachmentPanel from '@/components/Thing/AttachmentPanel/index.vue'
+import AttachmentPanel from '@/components/Attachment/Panel.vue'
 
 const router = useRouter()
 

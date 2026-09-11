@@ -81,7 +81,7 @@ const loginHandle = async () => {
             </n-form-item>
             <!-- 添加窗口 -->
             <div style="display: flex; justify-content: flex-end">
-                <n-button class="login-button" createLocalStorage type="info" @click="loginHandle" :loading="isLoading">
+                <n-button class="login-button" type="info" @click="loginHandle" :loading="isLoading">
                     登录
                 </n-button>
             </div>

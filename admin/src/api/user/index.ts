@@ -1,15 +1,15 @@
-import request from "@/utils/request"
+import { http } from "@/utils/request"
 import type { UserLoginRequest, UserRegisterRequest } from "./type"
-import type { UserInfoResponse, Response, AuthTokenResponse} from "@/types"
+import type { UserInfoResponse, AuthTokenResponse } from "@/types"
 
 const API = {
-    REGISTER_URL : "/user/register",
-    LOGIN_URL : "/user/login",
-    USERINFO_URL : "/user/info",
-    LOGOUT_URL : "/user/logout"
+    REGISTER_URL: "/user/register",
+    LOGIN_URL: "/user/login",
+    USERINFO_URL: "/user/info",
+    LOGOUT_URL: "/user/logout"
 }
 
-export const userRegister = (data:UserRegisterRequest)=> request.post<any,Response<AuthTokenResponse>>(API.REGISTER_URL,data) 
-export const userLogin = (data:UserLoginRequest)=>request.post<any,Response<AuthTokenResponse>>(API.LOGIN_URL,data)
-export const userInfo = ()=>request.get<any,Response<UserInfoResponse>>(API.USERINFO_URL)
-export const userLogout = ()=>request.post<any,Response<null>>(API.LOGOUT_URL)
+export const userRegister = (data: UserRegisterRequest) => http.post<AuthTokenResponse>(API.REGISTER_URL, data)
+export const userLogin = (data: UserLoginRequest) => http.post<AuthTokenResponse>(API.LOGIN_URL, data)
+export const userInfo = () => http.get<UserInfoResponse>(API.USERINFO_URL)
+export const userLogout = () => http.post<null>(API.LOGOUT_URL)

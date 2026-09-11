@@ -1,7 +1,7 @@
 <template>
     <n-tabs animated type="line" size="large" default-value="list" v-model:value="tabKey">
         <n-tab-pane tab="说说列表" name="list" display-directive="show">
-            <SharingTable :sharings="sharingsData || []" :action-handler="actionHandler" />
+            <SharingTable :sharings="sharingsData || []" @select="handleSelect" @deselect="handleDeselect" @action="handleMenuAction" />
         </n-tab-pane>
         <n-tab-pane tab="创建说说" name="modify" display-directive="if">
             <SharingForm />
@@ -10,10 +10,9 @@
 </template>
 
 <script setup lang="ts">
-import { onBeforeUnmount, onMounted, ref } from 'vue'
+import { onMounted, ref } from 'vue'
 import { NTabs, NTabPane } from 'naive-ui';
 
-import $emitter from '@/bus'
 import SharingTable from '@/components/List/SharingTable/index.vue'
 import type { SharingInfo } from '@/types';
 import { getSharingList, deleteSharing, updateSharingStatus } from '@/api/sharing';
@@ -21,17 +20,35 @@ import SharingForm from '@/components/Form/Sharing.vue'
 
 const tabKey = ref<string>('list')
 const sharingsData = ref<SharingInfo[] | null>(null)
-// const openModify = () => tabKey.value = 'modify'
 const openPreview = () => {}
 
-// 蠢蠢的，暂时用这个变量存储要修改的ID
+// 当前选中的说说 ID（右键菜单操作的目标）
 const modifyID = ref<string | undefined>(undefined)
-const actionHandler = (id?: string) => modifyID.value = id
+const handleSelect = (id: string) => { modifyID.value = id }
+const handleDeselect = () => { modifyID.value = undefined }
+
+const handleMenuAction = (key: string) => {
+    switch (key) {
+        case 'publishSharing':
+            setSharingStatus('publish')
+            break
+        case 'privateSharing':
+            setSharingStatus('draft')
+            break
+        case 'previewSharing':
+            openPreview()
+            break
+        case 'deleteSharing':
+            deleteSharingByID()
+            break
+    }
+}
+
 const fetchSharingList = async () => {
     try {
         const res = await getSharingList();
         if (res.code === 0 && res.data) {
-            sharingsData.value = res.data["sharings"] as (SharingInfo[] | null);
+            sharingsData.value = res.data.sharings ?? null;
         } else {
             window.$message.error(res.message || '获取说说列表失败');
         }
@@ -39,12 +56,16 @@ const fetchSharingList = async () => {
         window.$message.error('获取说说列表出错');
     }
 }
+
 const deleteSharingByID = async () => {
+    if (!modifyID.value) {
+        window.$message.warning('请先选择一条说说')
+        return
+    }
     try {
-        const res = await deleteSharing(modifyID.value??'')
+        const res = await deleteSharing(modifyID.value)
         if (res.code === 0) {
             window.$message.success('删除说说成功')
-            fetchSharingList();
         } else {
             window.$message.error(res.message || '删除说说失败')
         }
@@ -76,22 +97,7 @@ const setSharingStatus = async (status: 'draft' | 'publish') => {
     }
 }
 
-onMounted(async () => {
-    // $emitter.on("sharing:updateAction", openModify)
-    $emitter.on('sharing:previewAction', openPreview)
-    // $emitter.on('sharing:listRefresh', fetchSharingList)
-    $emitter.on('sharing:deleteAction', deleteSharingByID)
-    $emitter.on('sharing:publishAction', () => setSharingStatus('publish'))
-    $emitter.on('sharing:privateAction', () => setSharingStatus('draft'))
+onMounted(() => {
     fetchSharingList();
-})
-
-onBeforeUnmount(() => {
-    // $emitter.off("sharing:updateAction", openModify)
-    $emitter.off('sharing:previewAction', openPreview)
-    // $emitter.off('sharing:listRefresh', fetchSharingList)
-    $emitter.off('sharing:deleteAction', deleteSharingByID)
-    $emitter.off('sharing:publishAction')
-    $emitter.off('sharing:privateAction')
 })
 </script>

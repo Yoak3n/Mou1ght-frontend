@@ -1,10 +1,9 @@
-import type { BlogSetting, Response } from "@/types";
-import request from "@/utils/request";
-
+import { http } from "@/utils/request"
+import type { BlogSetting } from "@/types"
 
 const API = {
     BLOG_SETTING: '/setting/blog',
 }
 
-export const getBlogSetting = () => request.get<any,Response<BlogSetting>>(API.BLOG_SETTING);
-export const updateBlogSetting = (data:BlogSetting) => request.put<any,Response<any>>(API.BLOG_SETTING,data);
+export const getBlogSetting = () => http.get<BlogSetting>(API.BLOG_SETTING)
+export const updateBlogSetting = (data: BlogSetting) => http.put<null>(API.BLOG_SETTING, data)
