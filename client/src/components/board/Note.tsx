@@ -1,9 +1,17 @@
+'use client';
+
 import type { FC } from 'react';
 import { MessageInfo } from '@/types/post';
+import LikeButton from '@/components/interaction/like';
+import ViewButton from '@/components/display/view';
+import ViewTracker from '@/components/interaction/viewTracker';
 
 interface NoteProps {
     message: MessageInfo;
     index: number;
+    owned?: boolean;
+    onEdit?: (id: string) => void;
+    onDelete?: (id: string) => void;
 }
 
 const COLORS = [
@@ -14,20 +22,21 @@ const COLORS = [
     'bg-orange-100',
 ];
 
-const Note: FC<NoteProps> = ({ message, index }) => {
-    // Deterministic random based on ID or index
+const Note: FC<NoteProps> = ({ message, index, owned = false, onEdit, onDelete }) => {
+    // 是否临时笔记（发布定位预览），不参与浏览/点赞统计
+    const isTemp = message.id === 'temp';
     const messageId = message.id || '';
     const colorIndex = (messageId.length + index) % COLORS.length;
-    
+
     // Generate stable rotation from ID hash
     const hash = messageId.split('').reduce((acc, char) => acc + char.charCodeAt(0), 0);
-    const rotate = (hash % 10) - 5; // -5 to +4 degrees 
+    const rotate = (hash % 10) - 5; // -5 to +4 degrees
 
     return (
-        <div 
+        <div
             className={`
-                ${COLORS[colorIndex]} 
-                p-6 w-64 h-64 shadow-md 
+                ${COLORS[colorIndex]}
+                p-6 w-64 h-64 shadow-md
                 flex flex-col relative
                 transition-transform hover:scale-105 hover:shadow-xl hover:z-10 duration-300
                 group
@@ -44,15 +53,33 @@ const Note: FC<NoteProps> = ({ message, index }) => {
                 </div>
                 <div className="w-0.5 h-2 bg-gray-400 mx-auto -mt-1"></div>
             </div>
-            
+
             <div className="flex-1 overflow-y-auto mt-2 text-gray-800 whitespace-pre-wrap leading-relaxed custom-scrollbar">
                 {message.content}
             </div>
-            
-            <div className="mt-4 pt-2 border-t border-black/5 text-xs text-gray-500 text-right flex justify-between items-center">
-                 <span className="opacity-50">#{index + 1}</span>
-                 <span>{message.time?.created_at ? new Date(message.time.created_at).toLocaleDateString() : ''}</span>
+
+            <div className="mt-4 pt-2 border-t border-black/5 text-xs text-gray-500 flex flex-col gap-1">
+                <div className="flex items-center justify-between">
+                    <span className="opacity-50">#{index + 1}</span>
+                    <span>{message.time?.created_at ? new Date(message.time.created_at).toLocaleDateString() : ''}</span>
+                </div>
+                <div className="flex items-center justify-between gap-2">
+                    {!isTemp && (
+                        <div className="flex items-center gap-1">
+                            <ViewButton count={message.state?.view ?? 0} type="message" />
+                            <LikeButton id={message.id} count={message.state?.like ?? 0} type="message" />
+                        </div>
+                    )}
+                    {owned && (
+                        <div className="flex items-center gap-2">
+                            <button onClick={() => onEdit?.(message.id)} className="hover:underline text-blue-600">编辑</button>
+                            <button onClick={() => onDelete?.(message.id)} className="hover:underline text-red-600">删除</button>
+                        </div>
+                    )}
+                </div>
             </div>
+
+            {!isTemp && <ViewTracker id={message.id} type="message" />}
         </div>
     );
 };

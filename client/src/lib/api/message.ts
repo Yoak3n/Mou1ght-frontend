@@ -11,7 +11,7 @@ const BASE_URL = (() => {
     return trimmed.endsWith("/api/v1") ? trimmed : `${trimmed}/api/v1`;
 })();
 
-export async function createMessage(data: CreateMessageRequest): Promise<boolean> {
+export async function createMessage(data: CreateMessageRequest): Promise<{ ok: boolean; message?: string }> {
     try {
         const res = await fetch(`${BASE_URL}/message/create`, {
             method: 'POST',
@@ -21,23 +21,29 @@ export async function createMessage(data: CreateMessageRequest): Promise<boolean
             },
             cache: 'no-store',
         });
-        if (!res.ok) {
-            console.error(`Failed to create message: ${res.status} ${res.statusText}`);
-            return false;
+
+        let json: Response<null> | null = null;
+        try {
+            json = await res.json();
+        } catch {
+            json = null;
         }
 
-        const json: Response<null> = await res.json();
-        
-        return json.code === 0;
+        if (!res.ok) {
+            console.error(`Failed to create message: ${res.status} ${res.statusText}`);
+            return { ok: false, message: json?.message || '发送失败' };
+        }
+
+        return { ok: json?.code === 0, message: json?.code === 0 ? undefined : json?.message };
     } catch (error) {
         console.error("Fetch Error:", error);
-        return false;
+        return { ok: false, message: '网络错误，请稍后重试' };
     }
 }
 
 export async function updateMessage(data: UpdateMessageRequest): Promise<boolean> {
     try {
-        const res = await fetch(`${BASE_URL}/message/update`, {
+        const res = await fetch(`${BASE_URL}/message/edit`, {
             method: 'POST',
             body: JSON.stringify(data),
             headers: {
@@ -48,6 +54,30 @@ export async function updateMessage(data: UpdateMessageRequest): Promise<boolean
 
         if (!res.ok) {
             console.error(`Failed to update message: ${res.status} ${res.statusText}`);
+            return false;
+        }
+
+        const json: Response<null> = await res.json();
+        return json.code === 0;
+    } catch (error) {
+        console.error("Fetch Error:", error);
+        return false;
+    }
+}
+
+export async function deleteOwnMessage(data: { id: string; visitor_token: string }): Promise<boolean> {
+    try {
+        const res = await fetch(`${BASE_URL}/message/delete`, {
+            method: 'POST',
+            body: JSON.stringify(data),
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            cache: 'no-store',
+        });
+
+        if (!res.ok) {
+            console.error(`Failed to delete message: ${res.status} ${res.statusText}`);
             return false;
         }
 
@@ -124,8 +154,11 @@ export async function getMessageList(): Promise<MessageInfo[] | null> {
 
 export async function getOwnedMessageIDs(visitorToken: string): Promise<string[]> {
     try {
-        const res = await fetch(`${BASE_URL}/message/owned?token=${encodeURIComponent(visitorToken)}`, {
+        const res = await fetch(`${BASE_URL}/message/owned`, {
             method: 'GET',
+            headers: {
+                Authorization: `Bearer ${visitorToken}`,
+            },
             cache: 'no-store',
         });
         if (!res.ok) return [];
