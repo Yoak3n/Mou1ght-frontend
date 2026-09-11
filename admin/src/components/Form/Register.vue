@@ -72,8 +72,10 @@ const registerHandle = async () => {
                 })
                 $router.push('/')
             } catch (error) {
+                // 请求拦截器 reject 的是错误信息字符串，Error 对象则取其 message
+                const message = typeof error === 'string' ? error : (error as Error)?.message || '注册失败'
                 window.$notification.error({
-                    content: (error as Error).message,
+                    content: message,
                     duration: 2500,
                     closable: false,
                 })

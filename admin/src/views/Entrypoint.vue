@@ -5,7 +5,7 @@
                 <n-tab-pane name="login" tab="登录">
                     <Login />
                 </n-tab-pane>
-                <n-tab-pane  name="register" tab="注册">
+                <n-tab-pane v-if="registrationOpen" name="register" tab="注册">
                     <Register />
                 </n-tab-pane>
             </n-tabs>
@@ -15,16 +15,29 @@
 </template>
 
 <script setup lang="ts">
+import { onMounted, ref } from 'vue';
 import { useRoute } from 'vue-router';
 import { NTabs, NTabPane } from 'naive-ui';
 import Login from '../components/Form/Login.vue'
 import Register from '../components/Form/Register.vue'
-import { ref } from 'vue';
+import { getRegisterStatus } from '@/api/user';
+
 const key = ref('login');
 const route = useRoute();
-if (route.query.type === 'register') {
-    key.value = 'register';
-}
+// 注册仅在没有任何用户时开放（首个账号引导），已初始化环境隐藏注册入口
+const registrationOpen = ref(false);
+
+onMounted(async () => {
+    try {
+        const res = await getRegisterStatus();
+        registrationOpen.value = res.data.open;
+    } catch {
+        registrationOpen.value = false;
+    }
+    if (route.query.type === 'register' && registrationOpen.value) {
+        key.value = 'register';
+    }
+});
 
 </script>
 
