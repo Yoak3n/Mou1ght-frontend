@@ -8,10 +8,10 @@ import useUserStore from '@/store/modules/user';
 const userStore = useUserStore()
 const $router = useRouter()
 const model = ref({ username: '', password: '', repeat_password: '', email: '' })
-let isLoading = ref(false)
+const isLoading = ref(false)
 
 const formRef = ref<FormInst | null>(null)
-let rules: FormRules = {
+const rules: FormRules = {
     username: {
         required: true,
         message: '请输入用户名',
@@ -59,7 +59,6 @@ let rules: FormRules = {
     }
 }
 
-
 const registerHandle = async () => {
     formRef.value?.validate(async (errors) => {
         if (!errors) {
@@ -87,67 +86,37 @@ const registerHandle = async () => {
         }
     })
 }
-
 </script>
 
 <template>
-    <div class="register-card">
-        <h1>Hello!</h1>
-        <h2>欢迎来到Mou1ght~</h2>
-        <n-form ref="formRef" :model="model" :rules="rules" :show-require-mark="false">
-            <n-form-item label="用户名" path="username">
-                <n-input v-model:value="model.username" placeholder="请输入您的用户名" />
-            </n-form-item>
-            <n-form-item label="邮箱" path="email" show-require-mark>
-                <n-input v-model:value="model.email" placeholder="请输入您的邮箱" :input-props="{autocomplete:'off'}" />
-            </n-form-item>
-            <n-form-item label="密码" path="password" show-require-mark >
-                <n-input 
-                    v-model:value="model.password" type="password"
-                    placeholder="请输入您的密码"
-                    :input-props="{autocomplete:'new-password'}"
-                    show-password-on="mousedown" />
-            </n-form-item>
-            <n-form-item label="确认密码" path="repeat_password" show-require-mark >
-                <n-input v-model:value="model.repeat_password" type="password" placeholder="请再次输入密码"
-                    :input-props="{autocomplete:'new-password'}"
-                    show-password-on="mousedown" />
-            </n-form-item>
-
-            <!-- 添加窗口 -->
-            <div style="display: flex; justify-content: flex-end">
-                <n-button class="register-button" createLocalStorage type="primary" :loading="isLoading"
-                    @click="registerHandle">
-                    注册
-                </n-button>
-            </div>
-        </n-form>
-    </div>
+    <n-form ref="formRef" :model="model" :rules="rules" :show-require-mark="false" size="large">
+        <n-form-item label="用户名" path="username">
+            <n-input v-model:value="model.username" placeholder="请输入您的用户名" />
+        </n-form-item>
+        <n-form-item label="邮箱" path="email" show-require-mark>
+            <n-input v-model:value="model.email" placeholder="请输入您的邮箱" :input-props="{ autocomplete: 'off' }" />
+        </n-form-item>
+        <n-form-item label="密码" path="password" show-require-mark>
+            <n-input v-model:value="model.password" type="password"
+                placeholder="请输入您的密码"
+                :input-props="{ autocomplete: 'new-password' }"
+                show-password-on="mousedown" />
+        </n-form-item>
+        <n-form-item label="确认密码" path="repeat_password" show-require-mark>
+            <n-input v-model:value="model.repeat_password" type="password" placeholder="请再次输入密码"
+                :input-props="{ autocomplete: 'new-password' }"
+                show-password-on="mousedown" />
+        </n-form-item>
+        <n-button class="submit-btn" type="primary" block size="large" :loading="isLoading" @click="registerHandle">
+            注 册
+        </n-button>
+    </n-form>
 </template>
 
 <style scoped>
-.register-card {
-    font-size: large;
-    color: #fff;
-    position: relative;
-    width: 80%;
-    border-radius: 8px;
-    padding: 40px;
-    margin: 0 auto;
-
-    h1 {
-        color: white;
-        font-size: 40px;
-    }
-
-    h2 {
-        font-size: 20px;
-        color: #fff;
-        margin: 20px 0;
-    }
-
-    .register-button {
-        width: 100%;
-    }
+.submit-btn {
+    margin-top: 8px;
+    font-weight: 600;
+    letter-spacing: 2px;
 }
 </style>

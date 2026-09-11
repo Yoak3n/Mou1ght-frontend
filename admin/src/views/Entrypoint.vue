@@ -1,7 +1,20 @@
 <template>
-    <div class="wrapper">
-        <div class="card">
-            <n-tabs size="large" default-value="login" animated v-model:value="key">
+    <div class="entry-wrapper">
+        <!-- 背景装饰光斑 -->
+        <div class="entry-bg" aria-hidden="true">
+            <div class="bg-blob blob-1"></div>
+            <div class="bg-blob blob-2"></div>
+            <div class="bg-blob blob-3"></div>
+        </div>
+
+        <div class="entry-card">
+            <div class="entry-brand">
+                <div class="entry-logo">M</div>
+                <h1 class="entry-title">Mou1ght</h1>
+                <p class="entry-subtitle">个人博客 · 内容管理系统</p>
+            </div>
+
+            <n-tabs v-model:value="key" type="segment" animated size="large" class="entry-tabs">
                 <n-tab-pane name="login" tab="登录">
                     <Login />
                 </n-tab-pane>
@@ -11,7 +24,6 @@
             </n-tabs>
         </div>
     </div>
-
 </template>
 
 <script setup lang="ts">
@@ -38,41 +50,102 @@ onMounted(async () => {
         key.value = 'register';
     }
 });
-
 </script>
 
 <style scoped>
-.wrapper {
-    background-color: #def;
-    background-size: cover;
-    height: 100vh;
+.entry-wrapper {
+    position: relative;
+    min-height: 100vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 24px;
+    background: linear-gradient(135deg, #0f172a 0%, #16324f 55%, #2d5a8e 100%);
+    overflow: hidden;
+}
 
-    .card {
-        font-size: large;
-        color: #fff;
-        position: relative;
-        width: 80%;
-        top: 30vh;
-        background: linear-gradient(#89cffa, #def8);
-        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
-        border-radius: 12px;
-        padding: 40px;
-        margin: 0 auto;
+.entry-bg {
+    position: absolute;
+    inset: 0;
+}
 
-        h1 {
-            color: white;
-            font-size: 40px;
-        }
+.bg-blob {
+    position: absolute;
+    border-radius: 50%;
+    filter: blur(90px);
+    opacity: 0.35;
+}
 
-        h2 {
-            font-size: 20px;
-            color: #fff;
-            margin: 20px 0;
-        }
+.blob-1 {
+    width: 420px;
+    height: 420px;
+    background: #3b82f6;
+    top: -120px;
+    left: -100px;
+}
 
-        .login-button {
-            width: 100%;
-        }
-    }
+.blob-2 {
+    width: 380px;
+    height: 380px;
+    background: #8b5cf6;
+    bottom: -120px;
+    right: -90px;
+}
+
+.blob-3 {
+    width: 260px;
+    height: 260px;
+    background: #06b6d4;
+    top: 38%;
+    left: 60%;
+    opacity: 0.22;
+}
+
+.entry-card {
+    position: relative;
+    width: 100%;
+    max-width: 440px;
+    background: rgba(255, 255, 255, 0.96);
+    backdrop-filter: blur(10px);
+    border-radius: 20px;
+    box-shadow: 0 24px 64px rgba(0, 0, 0, 0.35);
+    padding: 40px 36px 32px;
+}
+
+.entry-brand {
+    text-align: center;
+    margin-bottom: 26px;
+}
+
+.entry-logo {
+    width: 52px;
+    height: 52px;
+    margin: 0 auto 14px;
+    border-radius: 14px;
+    background: linear-gradient(135deg, #3b82f6, #8b5cf6);
+    color: #fff;
+    font-size: 26px;
+    font-weight: 700;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    box-shadow: 0 10px 24px rgba(59, 130, 246, 0.35);
+}
+
+.entry-title {
+    font-size: 24px;
+    font-weight: 700;
+    color: #1e293b;
+    margin: 0;
+}
+
+.entry-subtitle {
+    font-size: 13px;
+    color: #94a3b8;
+    margin-top: 6px;
+}
+
+.entry-tabs :deep(.n-tabs-nav) {
+    justify-content: center;
 }
 </style>
