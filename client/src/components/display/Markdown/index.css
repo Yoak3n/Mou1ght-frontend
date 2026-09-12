@@ -81,8 +81,8 @@
   overflow: auto;
   font-size: 85%;
   line-height: 1.45;
-  background-color: color-mix(in oklab, var(--foreground) 6%, transparent);
-  border-radius: 6px;
+  background-color: #0d1117;
+  border-radius: 8px;
   margin-bottom: 16px;
 }
 
@@ -90,6 +90,13 @@
   background-color: transparent;
   padding: 0;
   font-size: 100%;
+  color: #e6edf3;
+}
+
+/* highlight.js token colors inherit from github-dark theme; reset inline code contrast inside pre */
+.markdown-content pre code.hljs {
+  padding: 0;
+  background: transparent;
 }
 
 /* Links */
