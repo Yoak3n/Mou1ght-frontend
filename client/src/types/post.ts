@@ -88,6 +88,7 @@ export interface MessageInfo {
 export interface Attachment {
     file_name: string,
     file_path: string
+    mime?: string
 }
 
 export interface MessagePosition{
