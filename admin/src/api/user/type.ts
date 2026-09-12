@@ -13,7 +13,8 @@ export interface UpdateUserProfileRequest{
     username:string,
     email:string,
     phone:string,
-    avatar:string
+    avatar:string,
+    bio?:string
 }
 
 export interface ChangePasswordRequest{

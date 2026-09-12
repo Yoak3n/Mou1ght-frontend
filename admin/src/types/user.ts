@@ -11,6 +11,7 @@ export interface UserInfo extends Partial<OutsideInformation>  {
     id: string,
     username: string
     avatar: string
+    bio?: string
     role: string
 }
 

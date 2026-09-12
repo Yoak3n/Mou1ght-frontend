@@ -30,11 +30,13 @@ export interface MessageInfo {
 }
 
 export interface CategoryGroup extends Sign{
+    parent?: string
     children: CategoryGroup[]
 }
 
 export interface CategoryRequest extends Omit<Sign,'id'>{
-    parent?: string
+    /** 省略=不改父级；空串=改为根分类；有值=挂到该分类下 */
+    parent?: string | null
 }
 
 export interface TagRequest extends Omit<Sign,'id'>{}

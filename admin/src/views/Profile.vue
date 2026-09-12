@@ -14,6 +14,16 @@
                 <n-form-item label="头像地址" path="avatar">
                     <n-input v-model:value="profileModel.avatar" placeholder="请输入头像图片地址" />
                 </n-form-item>
+                <n-form-item label="个性签名" path="bio">
+                    <n-input
+                        v-model:value="profileModel.bio"
+                        type="textarea"
+                        :rows="3"
+                        maxlength="120"
+                        show-count
+                        placeholder="展示在前台作者卡片上，一句话介绍自己"
+                    />
+                </n-form-item>
                 <n-form-item>
                     <n-button type="primary" :loading="savingProfile" @click="saveProfile">保存资料</n-button>
                 </n-form-item>
@@ -53,6 +63,7 @@ const profileModel = reactive({
     email: '',
     phone: '',
     avatar: '',
+    bio: '',
 });
 const profileRules: FormRules = {
     username: { required: true, message: '请输入用户名', trigger: ['input', 'blur'] },
@@ -71,6 +82,7 @@ const saveProfile = () => {
                 email: profileModel.email.trim(),
                 phone: profileModel.phone.trim(),
                 avatar: profileModel.avatar.trim(),
+                bio: profileModel.bio.trim(),
             });
             if (res.code === 0) {
                 userStore.info = res.data.user;
@@ -153,6 +165,7 @@ onMounted(async () => {
         profileModel.email = info.email || '';
         profileModel.phone = info.phone || '';
         profileModel.avatar = info.avatar || '';
+        profileModel.bio = info.bio || '';
     }
 });
 </script>

@@ -37,11 +37,17 @@ export interface TagWithArticles {
     articles: ArticleInfo[];
 }
 
+export interface AuthorWithPosts {
+    author: UserInfo
+    articles: ArticleInfo[]
+    sharings: SharingInfo[]
+}
+
 export interface PostListResponse {
     articles?: ArticleInfo[]
     sharings?: SharingInfo[]
     messages?: MessageInfo[]
-    authors?: []
+    authors?: AuthorWithPosts[]
     tags?: TagWithArticles[]
     categories? : CategoryWithArticles[]
     total?: number

@@ -1,7 +1,7 @@
 'use server'
 
 import { unstable_cache } from 'next/cache';
-import { ArticleInfo, PostListResponse } from "@/types/post";
+import { ArticleInfo, AuthorWithPosts, PostListResponse } from "@/types/post";
 import { Response } from "@/types";
 
 const BASE_URL = (() => {
@@ -37,10 +37,7 @@ const getArticlesByCategoryLabelCached = unstable_cache(
                 console.error("API Error:", json.message);
                 return null;
             }
-            // The API returns a list of categories matching the keyword.
-            // We assume the first one is the correct one since we filter by exact label if unique.
-            // Actually keyword search might return multiple if label is substring?
-            // Backend uses `label in ?` so it is exact match for the set of labels provided.
+            // 后端会把子孙分类下的文章归并到该分类结果里
             const categoryGroup = json.data.categories?.find(c => c.category.label === category_name);
             return categoryGroup ? categoryGroup.articles : [];
         } catch (error) {
@@ -125,6 +122,42 @@ const getArticleDetailCached = unstable_cache(
 
 export async function getArticleDetail(article_id: string): Promise<ArticleInfo | null> {
     return getArticleDetailCached(article_id);
+}
+
+const getAuthorByUsernameCached = unstable_cache(
+    async (username: string): Promise<AuthorWithPosts | null> => {
+        try {
+            const req = {
+                filter: { type: "author", sort: "desc" },
+                data: { keyword: [username] }
+            };
+            const res = await fetch(`${BASE_URL}/article/list`, {
+                method: 'POST',
+                body: JSON.stringify(req),
+                headers: { 'Content-Type': 'application/json' },
+                cache: 'no-store',
+            });
+            if (!res.ok) {
+                console.error(`Failed to fetch author posts: ${res.status} ${res.statusText}`);
+                return null;
+            }
+            const json: Response<PostListResponse> = await res.json();
+            if (json.code !== 0) {
+                console.error("API Error:", json.message);
+                return null;
+            }
+            return json.data.authors?.find(a => a.author?.username === username) ?? null;
+        } catch (error) {
+            console.error("Fetch Error:", error);
+            return null;
+        }
+    },
+    ['author-by-username'],
+    { tags: ['content'], revalidate: 600 }
+);
+
+export async function getAuthorByUsername(username: string): Promise<AuthorWithPosts | null> {
+    return getAuthorByUsernameCached(username);
 }
 
 export async function viewArticle(article_id: string): Promise<boolean> {
