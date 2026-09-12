@@ -42,7 +42,11 @@ request.interceptors.response.use(
                 message = "请求地址错误"
                 break
             case 500:
-                message = "服务器出现问题"
+                // 保留后端 message，便于排查上传/写盘等具体失败原因
+                message = (data as Response<any>)?.message || "服务器出现问题"
+                break
+            case 413:
+                message = "文件过大"
                 break
             default:
                 message = "网络出现问题"
