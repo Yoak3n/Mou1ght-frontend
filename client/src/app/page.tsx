@@ -44,6 +44,7 @@ export default async function Home({ searchParams }: { searchParams: Promise<{ p
               {page > 1 ? (
                 <Link
                   href={`/?page=${page - 1}`}
+                  scroll={false}
                   className="px-4 py-2 rounded-lg border border-border bg-card text-foreground hover:bg-accent"
                 >
                   上一页
@@ -59,6 +60,7 @@ export default async function Home({ searchParams }: { searchParams: Promise<{ p
               {page < totalPages ? (
                 <Link
                   href={`/?page=${page + 1}`}
+                  scroll={false}
                   className="px-4 py-2 rounded-lg border border-border bg-card text-foreground hover:bg-accent"
                 >
                   下一页
