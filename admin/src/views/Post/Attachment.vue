@@ -31,7 +31,7 @@
 <script setup lang="ts">
 import { computed, h, onMounted, ref } from 'vue';
 import {
-    NAlert, NButton, NCard, NDataTable, NIcon, NImage, NTag, NText
+    NAlert, NButton, NCard, NDataTable, NIcon, NImage, NSpace, NTag, NText
 } from 'naive-ui';
 import type { DataTableColumns } from 'naive-ui';
 import { CloudUploadOutline } from '@vicons/ionicons5';
@@ -133,6 +133,18 @@ const handleDelete = (row: AttachmentInfo) => {
     });
 };
 
+// 复制附件完整公网地址（相对路径拼上当前站点 origin）
+const copyLink = async (row: AttachmentInfo) => {
+    const url = `${window.location.origin}${row.url}`;
+    try {
+        await navigator.clipboard.writeText(url);
+        window.$message.success('链接已复制');
+    } catch {
+        // 剪贴板 API 不可用时降级为选中提示
+        window.$message.info(url);
+    }
+};
+
 const columns = computed<DataTableColumns<AttachmentInfo>>(() => [
     {
         title: '预览',
@@ -176,9 +188,14 @@ const columns = computed<DataTableColumns<AttachmentInfo>>(() => [
     {
         title: '操作',
         key: 'actions',
-        width: 90,
+        width: 160,
         render: (row) =>
-            h(NButton, { size: 'tiny', type: 'error', quaternary: true, onClick: () => handleDelete(row) }, { default: () => '删除' }),
+            h(NSpace, { size: 4 }, {
+                default: () => [
+                    h(NButton, { size: 'tiny', quaternary: true, onClick: () => copyLink(row) }, { default: () => '复制链接' }),
+                    h(NButton, { size: 'tiny', type: 'error', quaternary: true, onClick: () => handleDelete(row) }, { default: () => '删除' }),
+                ],
+            }),
     },
 ]);
 
