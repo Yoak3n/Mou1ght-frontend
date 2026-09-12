@@ -9,6 +9,7 @@ const API = {
 export interface AttachmentInfo {
     id: string
     url: string
+    file_path?: string
     original_name: string
     size: number
     mime: string

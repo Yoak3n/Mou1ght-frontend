@@ -38,7 +38,19 @@ import { CloudUploadOutline } from '@vicons/ionicons5';
 
 import { getAttachmentList, uploadAttachment, deleteAttachment, type AttachmentInfo } from '@/api/attachment';
 
-const baseURL = (import.meta.env.VITE_APP_BASE_API as string | undefined) || '/api/v1';
+// 优先后端返回的 file_path，兼容旧数据的 url
+const getAttachmentPath = (row: AttachmentInfo) => (row.file_path || row.url || '').trim();
+
+// 附件静态资源挂在站点根路径 /upload/，不能拼上 API 前缀
+const resolveAttachmentSrc = (row: AttachmentInfo) => {
+    const p = getAttachmentPath(row);
+    if (!p) return '';
+    if (/^(https?:)?\/\//.test(p) || p.startsWith('data:') || p.startsWith('blob:')) return p;
+    const apiBase = ((import.meta.env.VITE_APP_BASE_API as string | undefined) || '/api/v1').replace(/\/+$/, '');
+    // 开发环境 VITE_APP_BASE_API 带 host；生产是相对路径，直接走同源 /upload/
+    const origin = apiBase.startsWith('http') ? apiBase.replace(/\/api\/v1$/, '') : '';
+    return `${origin}${p.startsWith('/') ? p : `/${p}`}`;
+};
 
 const loading = ref(false);
 const uploading = ref(false);
@@ -133,14 +145,24 @@ const handleDelete = (row: AttachmentInfo) => {
     });
 };
 
-// 复制附件完整公网地址（相对路径拼上当前站点 origin）
+// 复制附件相对路径（部署后同源可直接访问）
+const copyPath = async (row: AttachmentInfo) => {
+    const path = getAttachmentPath(row);
+    try {
+        await navigator.clipboard.writeText(path);
+        window.$message.success('路径已复制');
+    } catch {
+        window.$message.info(path);
+    }
+};
+
 const copyLink = async (row: AttachmentInfo) => {
-    const url = `${window.location.origin}${row.url}`;
+    const path = getAttachmentPath(row);
+    const url = path.startsWith('http') ? path : `${window.location.origin}${path.startsWith('/') ? path : `/${path}`}`;
     try {
         await navigator.clipboard.writeText(url);
         window.$message.success('链接已复制');
     } catch {
-        // 剪贴板 API 不可用时降级为选中提示
         window.$message.info(url);
     }
 };
@@ -152,7 +174,7 @@ const columns = computed<DataTableColumns<AttachmentInfo>>(() => [
         width: 90,
         render: (row) => {
             const isImage = (row.mime || '').startsWith('image/');
-            const src = `${baseURL}${row.url}`;
+            const src = resolveAttachmentSrc(row);
             return isImage
                 ? h(NImage, { src, width: 48, height: 48, objectFit: 'cover', style: 'border-radius:4px' })
                 : h('div', { style: 'width:48px;height:48px;display:flex;align-items:center;justify-content:center;background:#f5f5f5;border-radius:4px;font-size:11px;color:#999' }, '附件');
@@ -163,6 +185,12 @@ const columns = computed<DataTableColumns<AttachmentInfo>>(() => [
         key: 'original_name',
         ellipsis: { tooltip: true },
         render: (row) => h(NText, { depth: 1 }, { default: () => row.original_name }),
+    },
+    {
+        title: '路径',
+        key: 'file_path',
+        ellipsis: { tooltip: true },
+        render: (row) => h(NText, { depth: 3, style: 'font-size:12px' }, { default: () => row.file_path || row.url || '-' }),
     },
     {
         title: '类型',
@@ -188,10 +216,11 @@ const columns = computed<DataTableColumns<AttachmentInfo>>(() => [
     {
         title: '操作',
         key: 'actions',
-        width: 160,
+        width: 220,
         render: (row) =>
             h(NSpace, { size: 4 }, {
                 default: () => [
+                    h(NButton, { size: 'tiny', quaternary: true, onClick: () => copyPath(row) }, { default: () => '复制路径' }),
                     h(NButton, { size: 'tiny', quaternary: true, onClick: () => copyLink(row) }, { default: () => '复制链接' }),
                     h(NButton, { size: 'tiny', type: 'error', quaternary: true, onClick: () => handleDelete(row) }, { default: () => '删除' }),
                 ],
