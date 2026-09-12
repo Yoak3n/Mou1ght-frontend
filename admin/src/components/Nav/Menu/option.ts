@@ -27,6 +27,8 @@ let  menuOptions: MenuOption[] = [
             },{
                 label:'说说管理',key:'post/sharing',path:'/post/sharing'
             },{
+                label:'附件管理',key:'post/attachment',path:'/post/attachment'
+            },{
                 label:'留言板管理',key:'post/message',path:'/post/message'
             }
         ]

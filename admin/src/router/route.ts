@@ -47,6 +47,11 @@ const routes: RouteRecordRaw[] = [
                 name: 'sharing',
                 component: () => import("@/views/Post/Sharing.vue"),
                 meta: { title: '说说管理' }
+            },{
+                path: '/post/attachment',
+                name: 'attachment',
+                component: () => import("@/views/Post/Attachment.vue"),
+                meta: { title: '附件管理' }
             }
         ]
       },{

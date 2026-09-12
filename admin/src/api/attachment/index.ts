@@ -2,7 +2,8 @@ import { http } from "@/utils/request"
 
 const API = {
     UPLOAD_URL: "/attachment/upload",
-    LIST_URL: "/attachment/list"
+    LIST_URL: "/attachment/list",
+    DELETE_URL: (id: string) => `/attachment/delete/${id}`
 }
 
 export interface AttachmentInfo {
@@ -11,6 +12,7 @@ export interface AttachmentInfo {
     original_name: string
     size: number
     mime: string
+    referenced?: boolean
 }
 
 export interface AttachmentListResponse {
@@ -23,3 +25,4 @@ export const uploadAttachment = (data: FormData) => http.post<AttachmentListResp
     }
 })
 export const getAttachmentList = () => http.get<AttachmentListResponse>(API.LIST_URL)
+export const deleteAttachment = (id: string) => http.delete<null>(API.DELETE_URL(id))

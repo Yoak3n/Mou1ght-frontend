@@ -77,11 +77,11 @@ const linkTypeOptions = [
 ];
 
 const internalDestinationOptions = [
-    { label: '主页', href: '/' },
-    { label: '留言板', href: '/board' },
-    { label: '说说', href: '/sharings' },
-    { label: '分类', href: '/categories' },
-    { label: '标签', href: '/tags' },
+    { label: '主页', value: '/' },
+    { label: '留言板', value: '/board' },
+    { label: '说说', value: '/sharings' },
+    { label: '分类', value: '/categories' },
+    { label: '标签', value: '/tags' },
 ];
 
 const blankLink = (type: string): LinkSetting => ({ type, label: '', href: '' });
@@ -98,7 +98,7 @@ const onChangeType = (index: number, type: string) => {
         if (type === 'internal') {
             const preset = internalDestinationOptions[0]!;
             link.label = preset.label;
-            link.href = preset.href;
+            link.href = preset.value;
         }
         list[index] = link;
         return list;
@@ -107,7 +107,7 @@ const onChangeType = (index: number, type: string) => {
 
 const onSelectInternal = (index: number, href: string) => {
     commit((list) => {
-        const preset = internalDestinationOptions.find((o) => o.href === href);
+        const preset = internalDestinationOptions.find((o) => o.value === href);
         list[index] = { type: 'internal', label: preset?.label ?? '', href };
         return list;
     });
@@ -126,7 +126,7 @@ const quickAdd = (type: string) => {
         if (type === 'internal') {
             const preset = internalDestinationOptions[0]!;
             link.label = preset.label;
-            link.href = preset.href;
+            link.href = preset.value;
         }
         list.push(link);
         return list;
