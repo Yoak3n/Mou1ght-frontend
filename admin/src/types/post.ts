@@ -8,7 +8,8 @@ export interface ArticleInfo {
     categories: Sign[],
     author: UserInfo,
     state: PostState,
-    time: PostTimeInfo
+    time: PostTimeInfo,
+    attachments?: Attachment[]
 }
 
 export interface SharingInfo {
