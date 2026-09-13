@@ -15,7 +15,7 @@
 
 <script setup lang="ts">
 import { computed, nextTick, ref, watch } from 'vue'
-import { NSelect } from 'naive-ui';
+import { NSelect, NInput, NButton } from 'naive-ui';
 import type { SelectOption } from 'naive-ui'
 import { renderTag } from '../index'
 import { createCategory, getAllCategoryGroup } from '@/api/category';

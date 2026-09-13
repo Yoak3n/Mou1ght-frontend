@@ -19,8 +19,16 @@
                         @update:file-list="handleUpdateFileList"
                         multiple
                         :max="9"
-                    />
-                    <span class="attachment-hint">支持音频（mp3/flac/wav/ogg/m4a/aac）与图片，最多 9 个，保存文章时生效；前台会为音频渲染播放器。</span>
+                    >
+                        <n-upload-dragger>
+                            <div class="attachment-dragger">
+                                <n-icon :size="28" :depth="3"><CloudUploadOutline /></n-icon>
+                                <div class="attachment-dragger-title">点击选择或拖拽文件到此处上传</div>
+                                <div class="attachment-dragger-sub">选择后立即上传，保存文章时生效；前台会为音频渲染播放器</div>
+                            </div>
+                        </n-upload-dragger>
+                    </n-upload>
+                    <span class="attachment-hint">支持音频（mp3/flac/wav/ogg/m4a/aac）与图片，最多 9 个。</span>
                 </div>
             </n-form-item-grid-item>
         </n-grid>
@@ -31,7 +39,8 @@
 
 <script setup lang="ts">
 import { onMounted, ref } from 'vue';
-import { NForm, NFormItem, NInput, NGrid, NFormItemGridItem, NUpload } from 'naive-ui';
+import { NForm, NFormItem, NInput, NGrid, NFormItemGridItem, NUpload, NUploadDragger, NIcon } from 'naive-ui';
+import { CloudUploadOutline } from '@vicons/ionicons5';
 import type { UploadFileInfo } from 'naive-ui'
 
 import useUserStore from '@/store/modules/user'
@@ -181,6 +190,24 @@ const handleSubmit = async (content: string) => {
 <style scoped>
 .attachment-block {
     width: 100%;
+}
+
+.attachment-dragger {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 6px;
+    padding: 18px 12px;
+}
+
+.attachment-dragger-title {
+    font-size: 14px;
+    color: #555;
+}
+
+.attachment-dragger-sub {
+    font-size: 12px;
+    color: #999;
 }
 
 .attachment-hint {
