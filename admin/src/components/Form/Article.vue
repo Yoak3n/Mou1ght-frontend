@@ -51,6 +51,8 @@ import TagSelect from '@/components/Select/TagSelect/index.vue'
 import { uploadAttachment } from '@/api/attachment';
 import type { ArticleInfo } from '@/types';
 const { article } = defineProps<{ article?: ArticleInfo }>()
+// saved(created)：保存成功后通知父组件刷新列表；新建成功时父组件切回列表页
+const emit = defineEmits<{ saved: [created: boolean] }>()
 const initialAtricle = {
     id: '',
     title: '',
@@ -174,9 +176,14 @@ const handleSubmit = async (content: string) => {
         if (article) {
             const res = await updateArticle({ ...req, id: article.id })
             window.$message.success(res.message)
+            emit('saved', false)
         } else {
             const res = await createArticle(req)
             window.$message.success(res.message)
+            // 重置表单，避免下次进入“新建文章”残留上次内容（content 置空会同步清空编辑器）
+            articleModel.value = { ...initialAtricle }
+            fileListRef.value = []
+            emit('saved', true)
         }
     } catch (e: any) {
         window.$message.error(e.message || '操作失败')

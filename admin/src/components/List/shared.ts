@@ -12,7 +12,7 @@ export const renderEllipsis = (text: string, maxWidth = '240px') =>
         style: { maxWidth },
         // NEllipsis 的悬浮提示默认不限宽，长摘要会一行撑满全屏；约束宽度并允许换行
         tooltip: {
-            style: { maxWidth: '420px', whiteSpace: 'normal', wordBreak: 'break-word' },
+            contentStyle: { maxWidth: '420px', whiteSpace: 'normal', wordBreak: 'break-word' },
         },
     }, { default: () => text })
 

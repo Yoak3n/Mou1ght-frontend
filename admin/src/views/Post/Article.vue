@@ -4,7 +4,7 @@
             <ArticleTable :articles="articlesData" @select="handleSelect" @deselect="handleDeselect" @action="handleMenuAction" />
         </n-tab-pane>
         <n-tab-pane :tab="modifyID && tabKey == 'modify'? '更新文章' : '新建文章'" name="modify" display-directive="if">
-            <ArticleForm :article="modifyArticle" />
+            <ArticleForm :article="modifyArticle" @saved="handleSaved" />
         </n-tab-pane>
     </n-tabs>
 </template>
@@ -32,6 +32,15 @@ const articlesData = ref<ArticleInfo[]>([])
 
 const handleSelect = (id: string) => { modifyID.value = id }
 const handleDeselect = () => { modifyID.value = undefined }
+
+// 保存成功：刷新列表；新建成功则切回列表页
+const handleSaved = async (created: boolean) => {
+    await fetchArticles()
+    if (created) {
+        tabKey.value = 'list'
+        modifyID.value = undefined
+    }
+}
 
 const openModify = () => tabKey.value = 'modify'
 const openPreview = () => {
