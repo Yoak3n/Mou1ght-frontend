@@ -1,7 +1,7 @@
 <template>
     <n-tabs animated type="line" size="large" default-value="list" v-model:value="tabKey" @update:value="(v)=> v== 'list' && (modifyID = undefined) ">
         <n-tab-pane tab="文章列表" name="list" display-directive="show">
-            <ArticleTable :articles="articlesData" @select="handleSelect" @deselect="handleDeselect" @action="handleMenuAction" />
+            <ArticleTable :articles="articlesData" :loading="listLoading" @select="handleSelect" @deselect="handleDeselect" @action="handleMenuAction" />
         </n-tab-pane>
         <n-tab-pane :tab="modifyID && tabKey == 'modify'? '更新文章' : '新建文章'" name="modify" display-directive="if">
             <ArticleForm :article="modifyArticle" @saved="handleSaved" />
@@ -29,6 +29,7 @@ const modifyArticle = computed(() => {
     return undefined
 })
 const articlesData = ref<ArticleInfo[]>([])
+const listLoading = ref(false)
 
 const handleSelect = (id: string) => { modifyID.value = id }
 const handleDeselect = () => { modifyID.value = undefined }
@@ -74,12 +75,17 @@ const fetchArticles = async () => {
             keyword: []
         }
     }
-    const res = await listArticle(req)
-    if (res.code == 0) {
-        articlesData.value = res.data.articles || []
-        return
+    listLoading.value = true
+    try {
+        const res = await listArticle(req)
+        if (res.code == 0) {
+            articlesData.value = res.data.articles || []
+            return
+        }
+        throw new Error(res.message)
+    } finally {
+        listLoading.value = false
     }
-    throw new Error(res.message)
 }
 
 const normalizeToRequestStatus = (s?: string): PostStatus => {

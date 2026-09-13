@@ -32,7 +32,26 @@ onMounted(async()=> {
             router.replace('/entry');
         }
     }
+    prefetchRoutes()
 })
+
+// 空闲时预取各页面的懒加载 chunk，消除首次切换菜单时的短暂卡顿
+const prefetchRoutes = () => {
+    const idle = (cb: () => void) => {
+        const w = window as any
+        if (typeof w.requestIdleCallback === 'function') w.requestIdleCallback(cb, { timeout: 5000 })
+        else window.setTimeout(cb, 2000)
+    }
+    idle(() => {
+        import('@/views/Post/Article.vue')
+        import('@/views/Post/Sharing.vue')
+        import('@/views/Post/Message.vue')
+        import('@/views/Post/Attachment.vue')
+        import('@/views/Post/Group.vue')
+        import('@/views/Settings.vue')
+        import('@/views/Profile.vue')
+    })
+}
 
 const pushRoute = (path: string) => {
     if (path === route.path) return;

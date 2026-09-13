@@ -1,5 +1,5 @@
 <template>
-    <n-data-table :data="data" :columns="columns" />
+    <n-data-table :data="data" :columns="columns" :loading="loading" />
     <ContextMenu :x="mouseAction.x" :y="mouseAction.y" :show="mouseAction.show"
         :options="contextMenuOptions" @select="handleMenuSelect" @close="handleMenuClose" />
 </template>
@@ -11,9 +11,10 @@ import type { ArticleInfo } from '@/types';
 import { createData, createColumns, contextMenuOptions } from '.';
 import ContextMenu from '../ContextMenu.vue';
 
-const props = defineProps<{
+const props = withDefaults(defineProps<{
     articles: ArticleInfo[];
-}>();
+    loading?: boolean;
+}>(), { loading: false });
 
 const emit = defineEmits<{
     select: [id: string];
@@ -43,4 +44,4 @@ const handleMenuClose = () => {
 };
 </script>
 
-<style scoped></style>
+<style></style>
