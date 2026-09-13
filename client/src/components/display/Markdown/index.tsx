@@ -15,6 +15,28 @@ renderer.heading = function ({ tokens, depth }) {
   return `<h${depth} id="${id}">${text}</h${depth}>`;
 };
 
+const AUDIO_URL_RE = /\.(mp3|flac|wav|ogg|oga|m4a|aac)(\?|#|$)/i;
+
+function escapeHtml(str: string): string {
+  return str
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;');
+}
+
+// 音频链接（![](xxx.mp3) 或 [文字](xxx.mp3)）渲染为内嵌播放器卡片；
+// 后台 bytemd 预览不识别此扩展，发布后前台正常显示。
+function renderAudioBlock(href: string, label: string): string {
+  const name = label.trim() || decodeURIComponent(href.split('/').pop() || '音频');
+  return [
+    `<div class="markdown-audio">`,
+    `<audio controls preload="none" src="${escapeHtml(href)}"></audio>`,
+    `<span class="markdown-audio__name">${escapeHtml(name)}</span>`,
+    `</div>`,
+  ].join('');
+}
+
 const CALLOUT_DEFAULT_TITLES: Record<string, string> = {
   note: 'Note',
   info: 'Info',
@@ -77,6 +99,16 @@ const calloutExtension = {
       `</div>\n`,
     ].join('');
   },
+};
+
+renderer.image = function ({ href, title, text }) {
+  if (AUDIO_URL_RE.test(href)) return renderAudioBlock(href, text);
+  return `<img src="${escapeHtml(href)}" alt="${escapeHtml(text)}"${title ? ` title="${escapeHtml(title)}"` : ''}>`;
+};
+renderer.link = function ({ href, title, tokens }) {
+  if (AUDIO_URL_RE.test(href)) return renderAudioBlock(href, this.parser.parseInline(tokens));
+  const inner: string = this.parser.parseInline(tokens);
+  return `<a href="${escapeHtml(href)}"${title ? ` title="${escapeHtml(title)}"` : ''}>${inner}</a>`;
 };
 
 marked.use({ extensions: [calloutExtension] });
