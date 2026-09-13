@@ -22,9 +22,8 @@
                     >
                         <n-upload-dragger>
                             <div class="attachment-dragger">
-                                <n-icon :size="28" :depth="3"><CloudUploadOutline /></n-icon>
-                                <div class="attachment-dragger-title">点击选择或拖拽文件到此处上传</div>
-                                <div class="attachment-dragger-sub">选择后立即上传，保存文章时生效；前台会为音频渲染播放器</div>
+                                <n-icon :size="15" :depth="3"><CloudUploadOutline /></n-icon>
+                                <span class="attachment-dragger-text">点击或拖拽上传附件（音频 / 图片）</span>
                             </div>
                         </n-upload-dragger>
                     </n-upload>
@@ -192,28 +191,23 @@ const handleSubmit = async (content: string) => {
     width: 100%;
 }
 
+.attachment-block :deep(.n-upload-dragger) {
+    padding: 6px 12px;
+}
+
 .attachment-dragger {
     display: flex;
-    flex-direction: column;
     align-items: center;
+    justify-content: center;
     gap: 6px;
-    padding: 18px 12px;
 }
 
-.attachment-dragger-title {
-    font-size: 14px;
-    color: #555;
-}
-
-.attachment-dragger-sub {
-    font-size: 12px;
+.attachment-dragger-text {
+    font-size: 13px;
     color: #999;
 }
 
 .attachment-hint {
-    display: block;
-    margin-top: 4px;
-    color: #999;
-    font-size: 12px;
+    display: none;
 }
 </style>
