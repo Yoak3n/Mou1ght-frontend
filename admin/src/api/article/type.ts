@@ -6,6 +6,8 @@ export interface CreateArticleRequest {
     author: string;
     tags: Sign[];
     categories: Sign[];
+    /** 文章关联的附件（音频/图片等）ID */
+    attachment_ids?: string[];
 }
 
 export interface PostListRequest {

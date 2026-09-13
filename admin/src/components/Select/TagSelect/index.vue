@@ -1,13 +1,22 @@
 <template>
     <n-select :multiple="multiple" :options="options" remote @update:show="(show) => show && loadOptions()" :value="multiple?keys:value"
-        :value-field="multiple?'key':'label'" label-field="label" @update-value="onUpdateKeys" />
+        :value-field="multiple?'key':'label'" label-field="label" @update-value="onUpdateKeys">
+        <template #action>
+            <div class="inline-create" @click.stop @mousedown.stop @keydown.stop>
+                <n-input v-model:value="newLabel" size="small" placeholder="新标签名称" @keydown.enter.prevent="createOption" />
+                <n-button size="small" type="primary" ghost :loading="creating" :disabled="!newLabel.trim()" @click="createOption">
+                    新建
+                </n-button>
+            </div>
+        </template>
+    </n-select>
 </template>
 
 <script setup lang="ts">
 import { computed, nextTick,ref, watch } from 'vue'
 import { NSelect } from 'naive-ui';
 import type { SelectOption } from 'naive-ui'
-import { getAllTags } from '@/api/tag';
+import { createTag, getAllTags } from '@/api/tag';
 import type { Sign } from '@/types';
 
 const {multiple} = defineProps({
@@ -50,6 +59,35 @@ const onUpdateKeys = (v: string[] | string) => {
     values.value = (v as string[]).map(item => optionData.get(item))
         .filter((item): item is Sign => item !== undefined)
 }
+// 下拉菜单底部现场新建标签，成功后刷新选项并自动选中
+const newLabel = ref('')
+const creating = ref(false)
+const createOption = async () => {
+    const label = newLabel.value.trim()
+    if (!label || creating.value) return
+    creating.value = true
+    try {
+        const res = await createTag({ label })
+        if (res.code != 0) throw new Error(res.message)
+        window.$message.success(`标签「${label}」创建成功`)
+        newLabel.value = ''
+        await loadOptions()
+        let created: Sign | undefined
+        optionData.forEach((item) => { if (item.label === label) created = item })
+        if (created) {
+            if (multiple) {
+                if (!values.value.some(v => v.id === created!.id)) values.value = [...values.value, created]
+            } else {
+                value.value = created.label
+            }
+        }
+    } catch (e: any) {
+        window.$message.error(e.message || '创建标签失败')
+    } finally {
+        creating.value = false
+    }
+}
+
 const loadOptions = async () => {
     options.value = []
     try {
@@ -72,3 +110,14 @@ const loadOptions = async () => {
     }
 }
 </script>
+
+<style scoped>
+.inline-create {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    width: 100%;
+    padding: 4px 6px;
+    box-sizing: border-box;
+}
+</style>
