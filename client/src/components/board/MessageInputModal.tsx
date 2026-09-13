@@ -19,8 +19,8 @@ interface MessageInputModalProps {
 export default function MessageInputModal({
     title,
     value,
-    placeholder = 'Write your message here...',
-    submitLabel = 'Next: Place Note',
+    placeholder = '在这里写下你的留言...',
+    submitLabel = '下一步：放置便签',
     onChange,
     onSubmit,
     onCancel,
@@ -35,7 +35,8 @@ export default function MessageInputModal({
                 </button>
 
                 <h2 className="text-xl font-bold mb-4 text-card-foreground">{title}</h2>
-                <div className="bg-yellow-100 p-4 rounded-sm shadow-md mb-6 rotate-1">
+                <div className="relative bg-yellow-100 p-4 rounded-sm shadow-md mb-6 rotate-1">
+                    <div className="absolute -top-2.5 left-1/2 -translate-x-1/2 h-5 w-20 bg-white/50 shadow-sm rounded-[1px] rotate-[-2deg]" />
                     <textarea
                         placeholder={placeholder}
                         value={value}
@@ -47,7 +48,7 @@ export default function MessageInputModal({
                 </div>
 
                 <div className="flex justify-end gap-3">
-                    <Button variant="ghost" onClick={onCancel}>Cancel</Button>
+                    <Button variant="ghost" onClick={onCancel}>取消</Button>
                     <Button onClick={onSubmit} disabled={submitDisabled || submitting} className="bg-amber-600 hover:bg-amber-700">
                         {submitLabel}
                     </Button>

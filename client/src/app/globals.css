@@ -123,3 +123,20 @@
     @apply bg-background text-foreground;
   }
 }
+
+/* 细滚动条（便签、文章内容等内部滚动区域使用） */
+.custom-scrollbar {
+  scrollbar-width: thin;
+  scrollbar-color: rgb(0 0 0 / 0.25) transparent;
+}
+.custom-scrollbar::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+.custom-scrollbar::-webkit-scrollbar-thumb {
+  border-radius: 9999px;
+  background: rgb(0 0 0 / 0.2);
+}
+.custom-scrollbar::-webkit-scrollbar-track {
+  background: transparent;
+}
