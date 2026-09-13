@@ -4,6 +4,7 @@ import { useCallback, useEffect, useMemo, useState } from 'react';
 import { ChevronLeft, ChevronRight, Download, FileText, X } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { cn } from '@/lib/utils';
+import { resolveAttachmentUrl } from '@/lib/attachment';
 import type { Attachment } from '@/types/post';
 
 function getAttachmentPath(att: Attachment): string {
@@ -19,22 +20,6 @@ function getAttachmentName(att: Attachment): string {
 function getAttachmentKey(att: Attachment, index: number): string {
     const anyAtt = att as unknown as { id?: string };
     return anyAtt.id || getAttachmentPath(att) || String(index);
-}
-
-export function resolveAttachmentUrl(path: string): string {
-    const raw = (path || '').trim();
-    if (!raw) return '';
-    // 绝对 URL / data / blob 原样返回
-    if (/^(https?:)?\/\//.test(raw) || raw.startsWith('data:') || raw.startsWith('blob:')) return raw;
-
-    // 其余一律按同源相对路径处理：生产环境 nginx 已将 /upload/ 转发到后端；
-    // 本地开发需要预览附件时，可在构建时设置 NEXT_PUBLIC_BASE_URL=http://localhost:10420
-    const rawBase = (process.env.NEXT_PUBLIC_BASE_URL || '').trim();
-    if (rawBase) {
-        const base = rawBase.replace(/\/+$/, '').replace(/\/api\/v1$/, '');
-        return raw.startsWith('/') ? `${base}${raw}` : `${base}/${raw}`;
-    }
-    return raw.startsWith('/') ? raw : `/${raw}`;
 }
 
 function getGridColsClass(count: number): string {

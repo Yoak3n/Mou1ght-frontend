@@ -1,6 +1,7 @@
 import { Music } from 'lucide-react';
 import type { Attachment } from '@/types/post';
-import AttachmentGallery, { resolveAttachmentUrl } from './AttachmentGallery';
+import AttachmentGallery from './AttachmentGallery';
+import { resolveAttachmentUrl } from '@/lib/attachment';
 
 function attachmentName(att: Attachment): string {
     const anyAtt = att as unknown as { file_name?: string; original_name?: string };
