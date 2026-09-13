@@ -58,7 +58,11 @@ const CategoriesPage: FC = async () => {
                     </Link>
                   </CardTitle>
                   <div className="text-xs text-muted-foreground">
-                    {descendantCount > 0 ? `包含 ${descendantCount} 个子分类` : "无子分类"}
+                    {(category.total_count ?? 0) > 0
+                      ? `${category.total_count} 篇文章${descendantCount > 0 ? ` · ${descendantCount} 个子分类` : ""}`
+                      : descendantCount > 0
+                        ? `${descendantCount} 个子分类`
+                        : "暂无文章"}
                   </div>
                 </CardHeader>
 
@@ -67,7 +71,10 @@ const CategoriesPage: FC = async () => {
                     <div className="flex flex-wrap gap-2">
                       {shownChildren.map((child) => (
                         <Badge key={child.id} asChild variant="secondary">
-                          <Link href={`/category/${encodeLabel(child.label)}`}>{child.label}</Link>
+                          <Link href={`/category/${encodeLabel(child.label)}`}>
+                            {child.label}
+                            {(child.count ?? 0) > 0 ? ` ${child.count}` : ""}
+                          </Link>
                         </Badge>
                       ))}
                       {hiddenChildrenCount > 0 ? (

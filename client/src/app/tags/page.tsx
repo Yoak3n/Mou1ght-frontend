@@ -40,7 +40,7 @@ const TagsPage: FC = async () => {
                 </CardHeader>
                 <CardContent className="pt-0">
                   <div className="flex flex-wrap gap-2">
-                    <Badge variant="outline">查看相关文章</Badge>
+                    <Badge variant="outline">{tag.count ?? 0} 篇文章</Badge>
                   </div>
                 </CardContent>
               </Card>

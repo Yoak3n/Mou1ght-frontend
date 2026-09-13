@@ -64,7 +64,8 @@ export interface ArticleInfo {
     categories: Sign[],
     author: UserInfo,
     state: PostState,
-    time: PostTimeInfo
+    time: PostTimeInfo,
+    attachments?: Attachment[]
 }
 
 export interface SharingInfo {
@@ -100,10 +101,14 @@ export interface MessagePosition{
 export interface Sign {
     id: string;
     label: string;
+    /** 直接关联的已发布文章数，仅标签/分类列表接口返回 */
+    count?: number;
 }
 
 export interface CategoryGroup extends Sign {
     children: CategoryGroup[];
+    /** 聚合所有子分类后的文章总数 */
+    total_count?: number;
 }
 
 export interface PostState {

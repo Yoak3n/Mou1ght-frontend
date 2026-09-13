@@ -21,7 +21,7 @@ function getAttachmentKey(att: Attachment, index: number): string {
     return anyAtt.id || getAttachmentPath(att) || String(index);
 }
 
-function resolveAttachmentUrl(path: string): string {
+export function resolveAttachmentUrl(path: string): string {
     const raw = (path || '').trim();
     if (!raw) return '';
     // 绝对 URL / data / blob 原样返回

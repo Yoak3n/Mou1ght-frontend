@@ -3,6 +3,7 @@ import type { Metadata } from 'next';
 import { getArticleDetail } from '@/lib/api/article';
 import { getBlogSetting } from '@/lib/api';
 import Markdown from '@/components/display/Markdown';
+import ArticleAttachments from '@/components/display/ArticleAttachments';
 import TableOfContents from '@/components/display/Markdown/toc';
 import ViewTracker from '@/components/interaction/viewTracker';
 import {
@@ -115,6 +116,7 @@ const ArticleView: FC<{ params: { article_id: string } }> = async ({ params }) =
                         {/* Article Content */}
                         <div className="bg-card rounded-xl shadow-sm border border-border p-6 sm:p-10 min-h-[500px]">
                             <Markdown content={article.content} />
+                            <ArticleAttachments attachments={article.attachments} />
                         </div>
 
                         {/* Article Footer Actions (Removed as moved to header) */}
