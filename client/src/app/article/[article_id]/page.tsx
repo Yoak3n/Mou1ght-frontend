@@ -170,15 +170,8 @@ const ArticleView: FC<{ params: { article_id: string } }> = async ({ params }) =
                                 </CardContent>
                             </Card>
 
-                            {/* TOC Card */}
-                            <Card className="shadow-sm border-border">
-                                <CardHeader>
-                                    <CardTitle className="text-lg">Table of Contents</CardTitle>
-                                </CardHeader>
-                                <CardContent className="max-h-[60vh] overflow-y-auto custom-scrollbar">
-                                    <TableOfContents content={article.content} />
-                                </CardContent>
-                            </Card>
+                            {/* TOC：无标题层级时组件内部整卡隐藏 */}
+                            <TableOfContents content={article.content} />
 
                             {/* Categories & Tags */}
                             <Card className="shadow-sm border-border">
