@@ -7,7 +7,14 @@ import type { PostState } from '@/types'
 // 表格列渲染的共享助手：三个内容表格（文章/说说/留言）复用同一套渲染逻辑。
 
 export const renderEllipsis = (text: string, maxWidth = '240px') =>
-    h(NEllipsis, { lineClamp: 1, style: { maxWidth } }, { default: () => text })
+    h(NEllipsis, {
+        lineClamp: 1,
+        style: { maxWidth },
+        // NEllipsis 的悬浮提示默认不限宽，长摘要会一行撑满全屏；约束宽度并允许换行
+        tooltip: {
+            style: { maxWidth: '420px', whiteSpace: 'normal', wordBreak: 'break-word' },
+        },
+    }, { default: () => text })
 
 export const renderTags = (tags: string[], type: 'info' | 'success' = 'info') =>
     tags.map((tag) =>
