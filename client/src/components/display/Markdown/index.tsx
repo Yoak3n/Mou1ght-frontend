@@ -1,5 +1,5 @@
 import type { FC } from 'react';
-import { marked } from 'marked';
+import { marked, type Token } from 'marked';
 import { markedHighlight } from 'marked-highlight';
 import hljs from 'highlight.js/lib/common';
 import { slugify } from '@/lib/markdown';
@@ -70,21 +70,24 @@ const calloutExtension = {
     const match = /^[ \t]*>[ \t]*\[!([A-Za-z-]+)\][ \t]*([^\n]*)\n((?:[ \t]*>[^\n]*(?:\n|$))*)/.exec(src);
     if (!match) return;
 
-    const calloutType = match[1].toLowerCase();
-    const title = (match[2] || '').trim();
     const bodyRaw = match[3]
       .split('\n')
       .map((line) => line.replace(/^[ \t]*>[ \t]?/, ''))
       .join('\n')
       .replace(/\n+$/, '');
 
+    // 嵌套正文用当前（外层）lexer 实例解析，与内置 blockquote 一致；
+    // 不要嵌套调用全局 marked.lexer()，那会在词法进行中开新实例、污染状态
+    const lexer = (this as unknown as {
+      lexer: { blockTokens: (text: string, tokens: Token[]) => Token[] };
+    }).lexer;
+
     return {
       type: 'callout',
       raw: match[0],
-      calloutType,
-      title,
-      text: bodyRaw,
-      tokens: marked.lexer(bodyRaw),
+      calloutType: match[1].toLowerCase(),
+      title: (match[2] || '').trim(),
+      tokens: lexer.blockTokens(bodyRaw, []),
     };
   },
   renderer(token: { calloutType: string; title: string; tokens: unknown }) {
